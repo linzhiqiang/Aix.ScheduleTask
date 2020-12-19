@@ -20,5 +20,10 @@ namespace Aix.ScheduleTask
         ///执行间隔时间（秒） 默认30秒  范围[5,30]
         /// </summary>
         public int CrontabIntervalSecond { get; set; } = 30;
+
+        /// <summary>
+        /// 集群类型 0=多集群（默认值）  1=单实例
+        /// </summary>
+        public int ClusterType { get; set; } = 0;
     }
 }

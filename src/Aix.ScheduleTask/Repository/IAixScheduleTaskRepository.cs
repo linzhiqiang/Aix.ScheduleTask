@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Aix.ScheduleTask.Repository
 {
-    public  interface  IAixScheduleTaskRepository:IRepository
+    public  interface  IAixScheduleTaskRepository: ICommonRepository
     {
         Task<PagedList<AixScheduleTaskInfo>> PageQuery(PageView pageView);
 

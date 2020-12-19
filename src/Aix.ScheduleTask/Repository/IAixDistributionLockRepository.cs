@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Aix.ScheduleTask.Repository
 {
-    public interface IAixDistributionLockRepository:IRepository
+    public interface IAixDistributionLockRepository: ICommonRepository
     {
         Task<AixDistributionLock> Get(string lockName);
+
+        Task<string> UseLock(string lockName, int commandTimeout = 300);
     }
 }

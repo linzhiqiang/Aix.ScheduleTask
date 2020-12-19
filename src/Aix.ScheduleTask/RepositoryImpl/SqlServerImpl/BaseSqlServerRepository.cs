@@ -20,18 +20,7 @@ namespace Aix.ScheduleTask.RepositoryImpl
             return new SqlExecuteTrace(sql, paras, _provider);
         }
 
-        /// <summary>
-        /// 开启分布式锁，跟着当前事务结束而结束   sqlserver
-        /// </summary>
-        /// <param name="lockName">请确保数据库中已存在该lockName</param>
-        /// <param name="commandTimeout">超时时间 单位 秒</param>
-        /// <returns></returns>
-        public Task<string> UseLock(string lockName, int commandTimeout = 300)
-        {
-            string sql = "select lock_name from aix_distribution_lock  with (rowlock,UpdLock)  where lock_name=@lockName ";
-            return base.ExecuteScalarAsync<string>(sql, new { lockName }, commandTimeout);
-        }
-
+      
 
     }
 }

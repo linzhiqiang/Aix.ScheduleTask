@@ -92,70 +92,91 @@ namespace Aix.ScheduleTask
             {
                 try
                 {
-                    await Execute();
+                    await DistributionLockWrap();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "定时任务执行出错");
-                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    if (ex.Message.ToLower().IndexOf("timeout") <  0)
+                    {
+                        _logger.LogError(ex, "定时任务执行出错");
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                    }
                 }
 
             }
         }
 
-        private async Task Execute()
+        /// <summary>
+        /// 根据是否集群环境是否增加分布式锁
+        /// </summary>
+        /// <returns></returns>
+        private async Task DistributionLockWrap()
         {
-            List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
-
-            using (var scope = _aixScheduleTaskRepository.BeginTransScope())
+            List<TimeSpan> nextExecuteDelays = null;
+            if (_options.ClusterType == 1)
             {
-                await _aixScheduleTaskRepository.UseLock(ScheduleTaskLock, 300);
-                var now = DateTimeUtils.GetTimeStamp();
-                var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(CrontabIntervalSecond * 1000 + now);
-                //处理
-                foreach (var task in taskList)
+                nextExecuteDelays = await Execute();
+            }
+            else
+            {
+                using (var scope = _aixScheduleTaskRepository.BeginTransScope())
                 {
-                    if (!_isStart) break;
-                    try
-                    {
-                        var Schedule = ParseCron(task.Cron);
-                        if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
-                        var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
-                        if (nextExecuteTimeSpan.TotalMilliseconds <= 0) //时间到了，开始执行任务
-                        {
-                            await HandleMessage(task); //建议插入任务队列
+                    await _aixDistributionLockRepository.UseLock(ScheduleTaskLock, 300);
+                    nextExecuteDelays = await Execute();
 
-                            now = DateTimeUtils.GetTimeStamp();
-                            task.LastExecuteTime = now;
-                            //计算下一次执行时间
-                            nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
-                            task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
-                            task.ModifyTime = DateTime.Now;
-                            await _aixScheduleTaskRepository.UpdateAsync(task);
-                        }
-
-                        if (task.NextExecuteTime == 0)  //只有第一次且未执行时更新下即可
-                        {
-                            task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
-                            task.ModifyTime = DateTime.Now;
-                            await _aixScheduleTaskRepository.UpdateAsync(task);
-                        }
-
-                        nextExecuteDelays.Add(nextExecuteTimeSpan);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
-                    }
+                    scope.Commit();
                 }
-
-                scope.Commit();
             }
 
             var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(CrontabIntervalSecond);
             if (depay > TimeSpan.FromSeconds(CrontabIntervalSecond)) depay = TimeSpan.FromSeconds(CrontabIntervalSecond);
-            //_logger.LogInformation($"***********delay:{depay.TotalMilliseconds}**********************");
             await Task.Delay(depay);
+        }
+
+        private async Task<List<TimeSpan>> Execute()
+        {
+            List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
+
+            var now = DateTimeUtils.GetTimeStamp();
+            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(CrontabIntervalSecond * 1000 + now);
+            //处理
+            foreach (var task in taskList)
+            {
+                if (!_isStart) break;
+                try
+                {
+                    var Schedule = ParseCron(task.Cron);
+                    if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
+                    var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
+                    if (nextExecuteTimeSpan.TotalMilliseconds <= 0) //时间到了，开始执行任务
+                    {
+                        await HandleMessage(task); //建议插入任务队列
+
+                        now = DateTimeUtils.GetTimeStamp();
+                        task.LastExecuteTime = now;
+                        //计算下一次执行时间
+                        nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
+                        task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
+                        task.ModifyTime = DateTime.Now;
+                        await _aixScheduleTaskRepository.UpdateAsync(task);
+                    }
+
+                    if (task.NextExecuteTime == 0)  //只有第一次且未执行时更新下即可
+                    {
+                        task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
+                        task.ModifyTime = DateTime.Now;
+                        await _aixScheduleTaskRepository.UpdateAsync(task);
+                    }
+
+                    nextExecuteDelays.Add(nextExecuteTimeSpan);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
+                }
+            }
+
+            return nextExecuteDelays;
         }
 
         private Task HandleMessage(AixScheduleTaskInfo taskInfo)

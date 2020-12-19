@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aix.ScheduleTask", "src\Aix
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{09D4E313-D377-4737-8A71-280632A51E30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aix.ScheduleTask.Example", "examples\Aix.ScheduleTask.Example\Aix.ScheduleTask.Example.csproj", "{06E36890-A5FB-4B8A-94FD-ACC92C4F2070}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aix.ScheduleTask.Example", "examples\Aix.ScheduleTask.Example\Aix.ScheduleTask.Example.csproj", "{06E36890-A5FB-4B8A-94FD-ACC92C4F2070}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

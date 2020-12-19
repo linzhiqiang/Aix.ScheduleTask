@@ -22,7 +22,7 @@ namespace Aix.ScheduleTask.Example
             var options = new AixScheduleTaskOptions
             {
                 Master = dbOption.Master,
-                DBType =2
+                DBType =1
             };
             services.AddScheduleTask(options);
 
