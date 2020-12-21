@@ -1,5 +1,6 @@
 ﻿using Aix.ScheduleTask.Example.Configs;
 using Aix.ScheduleTask.Example.HostServices;
+using Aix.ScheduleTask.Foundation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,17 +20,27 @@ namespace Aix.ScheduleTask.Example
 
             #region 定时服务相关
 
-            var options = new AixScheduleTaskOptions
+            services.AddScheduleTask(options =>
             {
-                Master = dbOption.Master,
-                DBType =1
-            };
-            services.AddScheduleTask(options);
+                options.Master = dbOption.Master;
+                options.DBType = 1;
+               // options.ClusterType = 1;
+            })
+            //.AddScheduleTaskDistributedLock<ScheduleTaskDistributedLockRedisImpl>()  //默认是用数据库的锁实现的，也可以替换为别的如redis锁等
+            ;
 
             #endregion
 
             //入口服务
             services.AddHostedService<StartHostService>();
+        }
+    }
+
+    public class ScheduleTaskDistributedLockRedisImpl : IScheduleTaskDistributedLock
+    {
+        public async Task Lock(string key, TimeSpan span, Func<Task> action, Func<Task> concurrentCallback = null)
+        {
+            await action();
         }
     }
 }

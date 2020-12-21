@@ -1,4 +1,5 @@
-﻿using Aix.ScheduleTask.Model;
+﻿using Aix.ScheduleTask.Foundation;
+using Aix.ScheduleTask.Model;
 using Aix.ScheduleTask.Repository;
 using Aix.ScheduleTask.Utils;
 using Microsoft.Extensions.Logging;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aix.ScheduleTask
@@ -38,10 +40,16 @@ namespace Aix.ScheduleTask
         ILogger<ScheduleTaskExecutor> _logger;
         private readonly IAixScheduleTaskRepository _aixScheduleTaskRepository;
         private readonly IAixDistributionLockRepository _aixDistributionLockRepository;
+        private readonly IScheduleTaskDistributedLock _scheduleTaskDistributedLock;
         private readonly AixScheduleTaskOptions _options;
 
         private ConcurrentDictionary<string, CrontabSchedule> CrontabScheduleCache = new ConcurrentDictionary<string, CrontabSchedule>();
-        private volatile bool _isStart = false;
+        //private volatile bool _isStart = false;
+        private RepeatChecker _repeatStartChecker = new RepeatChecker();
+        private RepeatChecker _repeatStopChecker = new RepeatChecker();
+        private readonly CancellationTokenSource _startedSource = new CancellationTokenSource();
+        private CancellationToken StartedToken => _startedSource.Token;
+
         private int CrontabIntervalSecond = 30; //没有数据时等待时间
         public event Func<ScheduleTaskContext, Task> OnHandleMessage;
 
@@ -50,7 +58,8 @@ namespace Aix.ScheduleTask
         public ScheduleTaskExecutor(ILogger<ScheduleTaskExecutor> logger,
             AixScheduleTaskOptions options,
             IAixScheduleTaskRepository aixScheduleTaskRepository,
-            IAixDistributionLockRepository aixDistributionLockRepository
+            IAixDistributionLockRepository aixDistributionLockRepository,
+            IScheduleTaskDistributedLock scheduleTaskDistributedLock
             )
         {
             _logger = logger;
@@ -58,16 +67,12 @@ namespace Aix.ScheduleTask
             CrontabIntervalSecond = _options.CrontabIntervalSecond;
             _aixScheduleTaskRepository = aixScheduleTaskRepository;
             _aixDistributionLockRepository = aixDistributionLockRepository;
+            _scheduleTaskDistributedLock = scheduleTaskDistributedLock;
         }
 
         public Task Start()
         {
-            if (_isStart) return Task.CompletedTask;
-            lock (this)
-            {
-                if (_isStart) return Task.CompletedTask;
-                _isStart = true;
-            }
+            if (!_repeatStartChecker.Check()) return Task.CompletedTask;
             _logger.LogInformation("开始执行定时任务......");
             Task.Factory.StartNew(async () =>
             {
@@ -88,7 +93,7 @@ namespace Aix.ScheduleTask
         private async Task InnerStart()
         {
             await Init();
-            while (_isStart)
+            while (!StartedToken.IsCancellationRequested)
             {
                 try
                 {
@@ -96,10 +101,10 @@ namespace Aix.ScheduleTask
                 }
                 catch (Exception ex)
                 {
-                    if (ex.Message.ToLower().IndexOf("timeout") <  0)
+                    if (ex.Message.ToLower().IndexOf("timeout") < 0)
                     {
                         _logger.LogError(ex, "定时任务执行出错");
-                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        await Task.Delay(TimeSpan.FromSeconds(5), StartedToken);
                     }
                 }
 
@@ -113,24 +118,17 @@ namespace Aix.ScheduleTask
         private async Task DistributionLockWrap()
         {
             List<TimeSpan> nextExecuteDelays = null;
-            if (_options.ClusterType == 1)
-            {
-                nextExecuteDelays = await Execute();
-            }
-            else
-            {
-                using (var scope = _aixScheduleTaskRepository.BeginTransScope())
-                {
-                    await _aixDistributionLockRepository.UseLock(ScheduleTaskLock, 300);
-                    nextExecuteDelays = await Execute();
-
-                    scope.Commit();
-                }
-            }
+            await _scheduleTaskDistributedLock.Lock(ScheduleTaskLock, TimeSpan.FromSeconds(300), async () =>
+               {
+                   nextExecuteDelays = await Execute();
+               }, () =>
+               {
+                   return Task.CompletedTask;
+               });
 
             var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(CrontabIntervalSecond);
             if (depay > TimeSpan.FromSeconds(CrontabIntervalSecond)) depay = TimeSpan.FromSeconds(CrontabIntervalSecond);
-            await Task.Delay(depay);
+            await Task.Delay(depay, StartedToken);
         }
 
         private async Task<List<TimeSpan>> Execute()
@@ -142,7 +140,7 @@ namespace Aix.ScheduleTask
             //处理
             foreach (var task in taskList)
             {
-                if (!_isStart) break;
+                if (StartedToken.IsCancellationRequested) break;
                 try
                 {
                     var Schedule = ParseCron(task.Cron);
@@ -204,19 +202,30 @@ namespace Aix.ScheduleTask
 
         public void Dispose()
         {
-            if (!_isStart) return;
-
-            lock (this)
-            {
-                if (!_isStart) return;
-
-                _isStart = false;
-
-            }
+            if (!_repeatStopChecker.Check()) return;
             _logger.LogInformation("结束执行定时任务......");
+            NotifyStopped();
         }
 
         #region private 
+        private void NotifyStopped()
+        {
+            try
+            {
+                // Noop if this is already cancelled
+                if (_startedSource.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                // Run the cancellation token callbacks
+                _startedSource.Cancel(throwOnFirstException: false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred stopping the scheduletask", ex);
+            }
+        }
 
         private CrontabSchedule ParseCron(string cron)
         {
