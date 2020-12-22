@@ -50,7 +50,7 @@ namespace Aix.ScheduleTask
         private readonly CancellationTokenSource _startedSource = new CancellationTokenSource();
         private CancellationToken StartedToken => _startedSource.Token;
 
-        private int CrontabIntervalSecond = 30; //没有数据时等待时间
+        private int PreReadSecond = 30; //没有数据时等待时间
         public event Func<ScheduleTaskContext, Task> OnHandleMessage;
 
         readonly string ScheduleTaskLock = "ScheduleTaskLock";
@@ -64,7 +64,7 @@ namespace Aix.ScheduleTask
         {
             _logger = logger;
             _options = options;
-            CrontabIntervalSecond = _options.CrontabIntervalSecond;
+            PreReadSecond = _options.PreReadSecond;
             _aixScheduleTaskRepository = aixScheduleTaskRepository;
             _aixDistributionLockRepository = aixDistributionLockRepository;
             _scheduleTaskDistributedLock = scheduleTaskDistributedLock;
@@ -73,7 +73,7 @@ namespace Aix.ScheduleTask
         public Task Start()
         {
             if (!_repeatStartChecker.Check()) return Task.CompletedTask;
-            _logger.LogInformation("开始执行定时任务......");
+            _logger.LogInformation("定时任务开始执行......");
             Task.Factory.StartNew(async () =>
             {
                 try
@@ -98,6 +98,10 @@ namespace Aix.ScheduleTask
                 try
                 {
                     await DistributionLockWrap();
+                }
+                catch (TaskCanceledException)
+                {
+
                 }
                 catch (Exception ex)
                 {
@@ -126,8 +130,8 @@ namespace Aix.ScheduleTask
                    return Task.CompletedTask;
                });
 
-            var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(CrontabIntervalSecond);
-            if (depay > TimeSpan.FromSeconds(CrontabIntervalSecond)) depay = TimeSpan.FromSeconds(CrontabIntervalSecond);
+            var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(PreReadSecond);
+            if (depay > TimeSpan.FromSeconds(PreReadSecond)) depay = TimeSpan.FromSeconds(PreReadSecond);
             await Task.Delay(depay, StartedToken);
         }
 
@@ -136,7 +140,7 @@ namespace Aix.ScheduleTask
             List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
 
             var now = DateTimeUtils.GetTimeStamp();
-            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(CrontabIntervalSecond * 1000 + now);
+            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now);
             //处理
             foreach (var task in taskList)
             {
@@ -190,6 +194,10 @@ namespace Aix.ScheduleTask
                 {
                     await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, ExecutorParam = taskInfo.ExecutorParam });
                 }
+                catch (TaskCanceledException)
+                { 
+                
+                }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"定时任务执行出错 {taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
@@ -203,8 +211,9 @@ namespace Aix.ScheduleTask
         public void Dispose()
         {
             if (!_repeatStopChecker.Check()) return;
-            _logger.LogInformation("结束执行定时任务......");
+            _logger.LogInformation("定时任务结束中......");
             NotifyStopped();
+            _logger.LogInformation("定时任务已结束......");
         }
 
         #region private 
@@ -243,9 +252,14 @@ namespace Aix.ScheduleTask
             return result;
         }
 
-        private static TimeSpan GetNextDueTime(CrontabSchedule Schedule, DateTime LastDueTime, DateTime now)
+        private DateTime GetNexeTime(CrontabSchedule Schedule, DateTime LastDueTime)
         {
-            var nextOccurrence = Schedule.GetNextOccurrence(LastDueTime);
+            return  Schedule.GetNextOccurrence(LastDueTime);
+        }
+
+        private  TimeSpan GetNextDueTime(CrontabSchedule Schedule, DateTime LastDueTime, DateTime now)
+        {
+            var nextOccurrence = GetNexeTime(Schedule,LastDueTime);
             TimeSpan dueTime = nextOccurrence - now;// DateTime.Now;
 
             if (dueTime.TotalMilliseconds <= 0)

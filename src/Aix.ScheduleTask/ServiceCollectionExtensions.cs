@@ -64,9 +64,9 @@ namespace Aix.ScheduleTask
             if (options == null) throw new Exception("请配置options参数");
             if (string.IsNullOrEmpty(options.Master)) throw new Exception("请配置options.Master");
 
-            if (options.CrontabIntervalSecond <= 0) throw new Exception("配置options.CrontabIntervalSecond 非法");
-            if (options.CrontabIntervalSecond < 5) options.CrontabIntervalSecond = 5;
-            if (options.CrontabIntervalSecond > 30) options.CrontabIntervalSecond = 30;
+            if (options.PreReadSecond <= 0) throw new Exception("配置options.CrontabIntervalSecond 非法");
+            if (options.PreReadSecond < 5) options.PreReadSecond = 5;
+            if (options.PreReadSecond > 30) options.PreReadSecond = 30;
         }
     }
 

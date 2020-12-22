@@ -17,9 +17,9 @@ namespace Aix.ScheduleTask
         public int DBType { get; set; } = 1;
 
         /// <summary>
-        ///执行间隔时间（秒） 默认30秒  范围[5,30]
+        ///预提前读取时间（秒） 默认30秒  范围[5,30]
         /// </summary>
-        public int CrontabIntervalSecond { get; set; } = 30;
+        public int PreReadSecond { get; set; } = 30;
 
         /// <summary>
         /// 集群类型 0=多集群（默认值）  1=单实例
