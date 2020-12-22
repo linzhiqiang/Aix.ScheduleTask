@@ -15,6 +15,7 @@ insert into aix_distribution_lock(lock_name) values('ScheduleTaskLock');
 create table  aix_schedule_task_info
 (
        id                INT identity(1, 1) not null 	/*主键*/,
+       executor          VARCHAR(50) 	/*执行器 根据需要进行扩展*/,
        status            TINYINT default 0 not null 	/*状态 0=禁用 1=启动*/,
        task_name         VARCHAR(50) not null 	/*任务名称*/,
        task_desc         VARCHAR(200) 	/*任务描述*/,
@@ -32,6 +33,7 @@ alter  table aix_schedule_task_info
        add constraint PK_aix_schnfo_id5BDF primary key (id);
 EXEC sp_addextendedproperty 'MS_Description', '定时任务', 'user', dbo, 'table', aix_schedule_task_info, NULL, NULL;
 EXEC sp_addextendedproperty 'MS_Description', '主键', 'user', dbo, 'table', aix_schedule_task_info, 'column', id;
+EXEC sp_addextendedproperty 'MS_Description', '执行器 根据需要进行扩展', 'user', dbo, 'table', aix_schedule_task_info, 'column', executor;
 EXEC sp_addextendedproperty 'MS_Description', '状态 0=禁用 1=启动', 'user', dbo, 'table', aix_schedule_task_info, 'column', status;
 EXEC sp_addextendedproperty 'MS_Description', '任务名称', 'user', dbo, 'table', aix_schedule_task_info, 'column', task_name;
 EXEC sp_addextendedproperty 'MS_Description', '任务描述', 'user', dbo, 'table', aix_schedule_task_info, 'column', task_desc;

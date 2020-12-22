@@ -42,13 +42,13 @@ namespace Aix.ScheduleTask
         private readonly IAixDistributionLockRepository _aixDistributionLockRepository;
         private readonly IScheduleTaskDistributedLock _scheduleTaskDistributedLock;
         private readonly AixScheduleTaskOptions _options;
+        private readonly IScheduleTaskLifetime _scheduleTaskLifetime;
 
         private ConcurrentDictionary<string, CrontabSchedule> CrontabScheduleCache = new ConcurrentDictionary<string, CrontabSchedule>();
         //private volatile bool _isStart = false;
         private RepeatChecker _repeatStartChecker = new RepeatChecker();
         private RepeatChecker _repeatStopChecker = new RepeatChecker();
-        private readonly CancellationTokenSource _startedSource = new CancellationTokenSource();
-        private CancellationToken StartedToken => _startedSource.Token;
+        // private CancellationToken StopingToken;
 
         private int PreReadSecond = 30; //没有数据时等待时间
         public event Func<ScheduleTaskContext, Task> OnHandleMessage;
@@ -57,6 +57,7 @@ namespace Aix.ScheduleTask
 
         public ScheduleTaskExecutor(ILogger<ScheduleTaskExecutor> logger,
             AixScheduleTaskOptions options,
+            IScheduleTaskLifetime scheduleTaskLifetime,
             IAixScheduleTaskRepository aixScheduleTaskRepository,
             IAixDistributionLockRepository aixDistributionLockRepository,
             IScheduleTaskDistributedLock scheduleTaskDistributedLock
@@ -64,6 +65,8 @@ namespace Aix.ScheduleTask
         {
             _logger = logger;
             _options = options;
+            _scheduleTaskLifetime = scheduleTaskLifetime;
+            // StopingToken = _scheduleTaskLifetime.ScheduleTaskStopping;
             PreReadSecond = _options.PreReadSecond;
             _aixScheduleTaskRepository = aixScheduleTaskRepository;
             _aixDistributionLockRepository = aixDistributionLockRepository;
@@ -73,7 +76,6 @@ namespace Aix.ScheduleTask
         public Task Start()
         {
             if (!_repeatStartChecker.Check()) return Task.CompletedTask;
-            _logger.LogInformation("定时任务开始执行......");
             Task.Factory.StartNew(async () =>
             {
                 try
@@ -86,14 +88,14 @@ namespace Aix.ScheduleTask
                 }
 
             }, TaskCreationOptions.LongRunning);
-
+            _scheduleTaskLifetime.NotifyStarted();
             return Task.CompletedTask;
         }
 
         private async Task InnerStart()
         {
             await Init();
-            while (!StartedToken.IsCancellationRequested)
+            while (!_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested)
             {
                 try
                 {
@@ -108,7 +110,7 @@ namespace Aix.ScheduleTask
                     if (ex.Message.ToLower().IndexOf("timeout") < 0)
                     {
                         _logger.LogError(ex, "定时任务执行出错");
-                        await Task.Delay(TimeSpan.FromSeconds(5), StartedToken);
+                        await Task.Delay(TimeSpan.FromSeconds(5), _scheduleTaskLifetime.ScheduleTaskStopping);
                     }
                 }
 
@@ -132,7 +134,7 @@ namespace Aix.ScheduleTask
 
             var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(PreReadSecond);
             if (depay > TimeSpan.FromSeconds(PreReadSecond)) depay = TimeSpan.FromSeconds(PreReadSecond);
-            await Task.Delay(depay, StartedToken);
+            await Task.Delay(depay, _scheduleTaskLifetime.ScheduleTaskStopping);
         }
 
         private async Task<List<TimeSpan>> Execute()
@@ -144,7 +146,7 @@ namespace Aix.ScheduleTask
             //处理
             foreach (var task in taskList)
             {
-                if (StartedToken.IsCancellationRequested) break;
+                if (_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested) break;
                 try
                 {
                     var Schedule = ParseCron(task.Cron);
@@ -192,11 +194,11 @@ namespace Aix.ScheduleTask
                 //_aixScheduleTaskRepository.OpenNewContext();
                 try
                 {
-                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, ExecutorParam = taskInfo.ExecutorParam });
+                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, Executor = taskInfo.Executor, ExecutorParam = taskInfo.ExecutorParam });
                 }
                 catch (TaskCanceledException)
-                { 
-                
+                {
+
                 }
                 catch (Exception ex)
                 {
@@ -211,30 +213,17 @@ namespace Aix.ScheduleTask
         public void Dispose()
         {
             if (!_repeatStopChecker.Check()) return;
-            _logger.LogInformation("定时任务结束中......");
-            NotifyStopped();
-            _logger.LogInformation("定时任务已结束......");
+
+            //开始stop
+            _scheduleTaskLifetime.Stop();
+
+            //开始stop 具体需要stop的
+
+            //stop结束通知
+            _scheduleTaskLifetime.NotifyStopped();
         }
 
         #region private 
-        private void NotifyStopped()
-        {
-            try
-            {
-                // Noop if this is already cancelled
-                if (_startedSource.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                // Run the cancellation token callbacks
-                _startedSource.Cancel(throwOnFirstException: false);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("An error occurred stopping the scheduletask", ex);
-            }
-        }
 
         private CrontabSchedule ParseCron(string cron)
         {
@@ -254,12 +243,12 @@ namespace Aix.ScheduleTask
 
         private DateTime GetNexeTime(CrontabSchedule Schedule, DateTime LastDueTime)
         {
-            return  Schedule.GetNextOccurrence(LastDueTime);
+            return Schedule.GetNextOccurrence(LastDueTime);
         }
 
-        private  TimeSpan GetNextDueTime(CrontabSchedule Schedule, DateTime LastDueTime, DateTime now)
+        private TimeSpan GetNextDueTime(CrontabSchedule Schedule, DateTime LastDueTime, DateTime now)
         {
-            var nextOccurrence = GetNexeTime(Schedule,LastDueTime);
+            var nextOccurrence = GetNexeTime(Schedule, LastDueTime);
             TimeSpan dueTime = nextOccurrence - now;// DateTime.Now;
 
             if (dueTime.TotalMilliseconds <= 0)

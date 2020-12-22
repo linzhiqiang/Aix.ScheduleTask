@@ -50,6 +50,7 @@ namespace Aix.ScheduleTask
             }
           
             services.AddSingleton<IScheduleTaskExecutor, ScheduleTaskExecutor>();
+            services.AddSingleton<IScheduleTaskLifetime,ScheduleTaskLifetime>();
             return services;
         }
 
