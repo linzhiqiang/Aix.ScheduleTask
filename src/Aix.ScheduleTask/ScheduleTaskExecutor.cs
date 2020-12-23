@@ -101,16 +101,16 @@ namespace Aix.ScheduleTask
                 {
                     await DistributionLockWrap();
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException ex)
                 {
-
+                    _logger.LogError(ex, "定时任务取消");
                 }
                 catch (Exception ex)
                 {
                     if (ex.Message.ToLower().IndexOf("timeout") < 0)
                     {
                         _logger.LogError(ex, "定时任务执行出错");
-                        await Task.Delay(TimeSpan.FromSeconds(5), _scheduleTaskLifetime.ScheduleTaskStopping);
+                        await TaskEx.DelayNoException(TimeSpan.FromSeconds(5), _scheduleTaskLifetime.ScheduleTaskStopping);
                     }
                 }
 
@@ -134,7 +134,7 @@ namespace Aix.ScheduleTask
 
             var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(PreReadSecond);
             if (depay > TimeSpan.FromSeconds(PreReadSecond)) depay = TimeSpan.FromSeconds(PreReadSecond);
-            await Task.Delay(depay, _scheduleTaskLifetime.ScheduleTaskStopping);
+            await TaskEx.DelayNoException(depay, _scheduleTaskLifetime.ScheduleTaskStopping);
         }
 
         private async Task<List<TimeSpan>> Execute()
@@ -147,37 +147,32 @@ namespace Aix.ScheduleTask
             foreach (var task in taskList)
             {
                 if (_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested) break;
-                try
+
+                var Schedule = ParseCron(task);
+                if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
+                var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
+                if (nextExecuteTimeSpan.TotalMilliseconds <= 0) //时间到了，开始执行任务
                 {
-                    var Schedule = ParseCron(task.Cron);
-                    if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
-                    var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
-                    if (nextExecuteTimeSpan.TotalMilliseconds <= 0) //时间到了，开始执行任务
-                    {
-                        await HandleMessage(task); //建议插入任务队列
+                    await HandleMessage(task); //建议插入任务队列
 
-                        now = DateTimeUtils.GetTimeStamp();
-                        task.LastExecuteTime = now;
-                        //计算下一次执行时间
-                        nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
-                        task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
-                        task.ModifyTime = DateTime.Now;
-                        await _aixScheduleTaskRepository.UpdateAsync(task);
-                    }
-
-                    if (task.NextExecuteTime == 0)  //只有第一次且未执行时更新下即可
-                    {
-                        task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
-                        task.ModifyTime = DateTime.Now;
-                        await _aixScheduleTaskRepository.UpdateAsync(task);
-                    }
-
-                    nextExecuteDelays.Add(nextExecuteTimeSpan);
+                    now = DateTimeUtils.GetTimeStamp();
+                    task.LastExecuteTime = now;
+                    //计算下一次执行时间
+                    nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
+                    task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
+                    task.ModifyTime = DateTime.Now;
+                    await _aixScheduleTaskRepository.UpdateAsync(task);
                 }
-                catch (Exception ex)
+
+                if (task.NextExecuteTime == 0)  //只有第一次且未执行时更新下即可
                 {
-                    _logger.LogError(ex, $"定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
+                    task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
+                    task.ModifyTime = DateTime.Now;
+                    await _aixScheduleTaskRepository.UpdateAsync(task);
                 }
+
+                nextExecuteDelays.Add(nextExecuteTimeSpan);
+
             }
 
             return nextExecuteDelays;
@@ -196,9 +191,9 @@ namespace Aix.ScheduleTask
                 {
                     await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, Executor = taskInfo.Executor, ExecutorParam = taskInfo.ExecutorParam });
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException ex)
                 {
-
+                    _logger.LogError(ex, "任务取消");
                 }
                 catch (Exception ex)
                 {
@@ -225,19 +220,28 @@ namespace Aix.ScheduleTask
 
         #region private 
 
-        private CrontabSchedule ParseCron(string cron)
+        private CrontabSchedule ParseCron(AixScheduleTaskInfo task)
         {
-            CrontabSchedule result;
-            if (CrontabScheduleCache.TryGetValue(cron, out result))
+            string cron = task.Cron;
+            CrontabSchedule result = null;
+            try
             {
-                return result;
+                if (string.IsNullOrEmpty(cron)) throw new Exception($"任务{task.Id},{task.TaskName}表达式配置为空");
+                if (CrontabScheduleCache.TryGetValue(cron, out result))
+                {
+                    return result;
+                }
+                var options = new CrontabSchedule.ParseOptions
+                {
+                    IncludingSeconds = cron.Split(' ').Length > 5,
+                };
+                result = CrontabSchedule.Parse(cron, options);
+                CrontabScheduleCache.TryAdd(cron, result);
             }
-            var options = new CrontabSchedule.ParseOptions
+            catch (Exception ex)
             {
-                IncludingSeconds = cron.Split(' ').Length > 5,
-            };
-            result = CrontabSchedule.Parse(cron, options);
-            CrontabScheduleCache.TryAdd(cron, result);
+                _logger.LogError(ex, $"定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
+            }
             return result;
         }
 
