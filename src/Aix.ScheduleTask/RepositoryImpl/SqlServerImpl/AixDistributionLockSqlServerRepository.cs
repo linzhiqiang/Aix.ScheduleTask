@@ -17,7 +17,7 @@ namespace Aix.ScheduleTask.RepositoryImpl
 
         public Task<AixDistributionLock> Get(string lockName)
         {
-            string sql = $"SELECT {AllColumns} FROM aix_distribution_lock WHERE lock_name = @lockName ";
+            string sql = $"SELECT {AllColumns} FROM aix_distribution_lock with(nowait) WHERE lock_name = @lockName ";
             return base.GetAsync<AixDistributionLock>(sql, new { lockName });
         }
 
@@ -29,7 +29,7 @@ namespace Aix.ScheduleTask.RepositoryImpl
         /// <returns></returns>
         public Task<string> UseLock(string lockName, int commandTimeout = 300)
         {
-            string sql = "select lock_name from aix_distribution_lock  with (rowlock,UpdLock)  where lock_name=@lockName ";
+            string sql = "select lock_name from aix_distribution_lock  with (rowlock,UpdLock,nowait)  where lock_name=@lockName ";
             return base.ExecuteScalarAsync<string>(sql, new { lockName }, commandTimeout);
         }
 

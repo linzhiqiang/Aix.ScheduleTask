@@ -127,9 +127,10 @@ namespace Aix.ScheduleTask
             await _scheduleTaskDistributedLock.Lock(ScheduleTaskLock, TimeSpan.FromSeconds(300), async () =>
                {
                    nextExecuteDelays = await Execute();
-               }, () =>
+               }, async () =>
                {
-                   return Task.CompletedTask;
+                   //出现并发 休息一会，说明其他服务器已经在执行了
+                   await TaskEx.DelayNoException(TimeSpan.FromSeconds(PreReadSecond), _scheduleTaskLifetime.ScheduleTaskStopping);
                });
 
             var depay = nextExecuteDelays.Any() ? nextExecuteDelays.Min() : TimeSpan.FromSeconds(PreReadSecond);
@@ -142,7 +143,7 @@ namespace Aix.ScheduleTask
             List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
 
             var now = DateTimeUtils.GetTimeStamp();
-            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now);
+            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now); 
             //处理
             foreach (var task in taskList)
             {
@@ -289,6 +290,18 @@ namespace Aix.ScheduleTask
             {
                 _logger.LogError(ex, "定时任务初始化出错");
                 throw;
+
+
+            }
+        }
+
+        private void WarnIfDataTooLarge(int count)
+        {
+            if (count >= 2000)
+            {
+                _logger.LogWarning("*******************************************");
+                _logger.LogWarning("定制任务数量太大，需要优化为分页轮询");
+                _logger.LogWarning("*******************************************");
             }
         }
 

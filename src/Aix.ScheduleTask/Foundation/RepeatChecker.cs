@@ -7,7 +7,7 @@ namespace Aix.ScheduleTask.Foundation
     /// <summary>
     /// 防重检测
     /// </summary>
-    public class RepeatChecker
+    internal class RepeatChecker
     {
         private volatile bool _state = false;
 

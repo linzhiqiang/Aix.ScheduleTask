@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>分布式定时任务:数据库实现支持 sqlserver、mysql</Description>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
