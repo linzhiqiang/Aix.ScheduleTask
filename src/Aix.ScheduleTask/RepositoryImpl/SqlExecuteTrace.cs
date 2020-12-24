@@ -15,13 +15,16 @@ namespace Aix.ScheduleTask.RepositoryImpl
     public class SqlExecuteTrace : AbstractSqlExecuteTrace
     {
         protected IServiceProvider _provider;
-        private ILogger<SqlExecuteTrace> _logger;
+        private static ILogger<SqlExecuteTrace> _logger;
         private Stopwatch _stopwatch;
 
         public SqlExecuteTrace(string sql, object paras, IServiceProvider provider) : base(sql, paras)
         {
             _provider = provider;
-            _logger = provider.GetService<ILogger<SqlExecuteTrace>>();
+            if (_logger == null)
+            {
+                _logger = provider.GetService<ILogger<SqlExecuteTrace>>();
+            }
         }
         public override void ExecuteStart()
         {
@@ -30,7 +33,7 @@ namespace Aix.ScheduleTask.RepositoryImpl
 
         public override void ExecuteException(Exception ex)
         {
-           // _logger.LogError(ex, "SQL Error,  SQL={0},params = {1}", Sql, JsonUtils.ToJson(Param));
+            // _logger.LogError(ex, "SQL Error,  SQL={0},params = {1}", Sql, JsonUtils.ToJson(Param));
         }
         public override void ExecuteEnd()
         {
