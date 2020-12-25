@@ -147,7 +147,8 @@ namespace Aix.ScheduleTask
             //处理
             foreach (var task in taskList)
             {
-                if (_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested) break;
+                // if (_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested) break;
+                _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
 
                 var Schedule = ParseCron(task);
                 if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
@@ -155,7 +156,7 @@ namespace Aix.ScheduleTask
 
                 if (nextExecuteTimeSpan <= TimeSpan.Zero) //时间到了，开始执行任务
                 {
-                    if (nextExecuteTimeSpan >= TimeSpan.FromSeconds(0 - PreReadSecond))//排除过期太久的，（服务停了好久，再启动下次执行时间估计很早之前的了，就不执行了）
+                    if (nextExecuteTimeSpan >= TimeSpan.FromSeconds(0 - PreReadSecond))//排除过期太久的，（服务停了好久，再启动这些就不执行了）
                     {
                         await HandleMessage(task); //建议插入任务队列
                     }
