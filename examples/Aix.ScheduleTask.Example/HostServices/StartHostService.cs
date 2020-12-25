@@ -46,7 +46,7 @@ namespace Aix.ScheduleTask.Example.HostServices
         private async Task _scheduleTaskExecutor_OnHandleMessage(Model.ScheduleTaskContext arg)
         {
            //Console.WriteLine($"执行任务:{arg.ExecutorParam}");
-            _logger.LogInformation( $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.ExecutorParam}");
+            _logger.LogInformation( $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.Id}——{arg.ExecutorParam}");
            // await Task.Delay(TimeSpan.FromSeconds(5));
             await Task.CompletedTask;
         }

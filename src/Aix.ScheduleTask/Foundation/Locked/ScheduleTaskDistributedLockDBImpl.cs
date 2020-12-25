@@ -9,11 +9,40 @@ namespace Aix.ScheduleTask.Foundation.Locked
     public class ScheduleTaskDistributedLockDBImpl : IScheduleTaskDistributedLock
     {
         private readonly IAixDistributionLockRepository _aixDistributionLockRepository;
-        public ScheduleTaskDistributedLockDBImpl(IAixDistributionLockRepository aixDistributionLockRepository)
+        private readonly IScheduleTaskLifetime _scheduleTaskLifetime;
+        public ScheduleTaskDistributedLockDBImpl(IAixDistributionLockRepository aixDistributionLockRepository, IScheduleTaskLifetime scheduleTaskLifetime)
         {
             _aixDistributionLockRepository = aixDistributionLockRepository;
+            _scheduleTaskLifetime = scheduleTaskLifetime;
         }
+
         public async Task Lock(string key, TimeSpan span, Func<Task> action, Func<Task> concurrentCallback = null)
+        {
+            using (var scope = _aixDistributionLockRepository.BeginTransScope())
+            {
+                try
+                {
+                    var task = _aixDistributionLockRepository.UseLock(key, (int)span.TotalSeconds);
+                    await task.TimeoutAfter(TimeSpan.FromSeconds(2), _scheduleTaskLifetime.ScheduleTaskStopping);
+                }
+                //catch (TimeoutException)
+                catch (Exception)
+                {
+                    if (concurrentCallback != null)
+                    {
+                        await concurrentCallback();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                await action();
+
+                scope.Commit();
+            }
+        }
+        public async Task LockPld(string key, TimeSpan span, Func<Task> action, Func<Task> concurrentCallback = null)
         {
             using (var scope = _aixDistributionLockRepository.BeginTransScope())
             {

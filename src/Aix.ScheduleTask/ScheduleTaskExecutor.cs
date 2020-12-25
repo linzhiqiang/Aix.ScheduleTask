@@ -33,7 +33,7 @@ namespace Aix.ScheduleTask
     }
 
     /// <summary>
-    /// 定时任务执行器
+    /// 定时任务执行器  不建议秒级的定时任务
     /// </summary>
     public class ScheduleTaskExecutor : IScheduleTaskExecutor
     {
@@ -50,7 +50,7 @@ namespace Aix.ScheduleTask
         private RepeatChecker _repeatStopChecker = new RepeatChecker();
         // private CancellationToken StopingToken;
 
-        private int PreReadSecond = 30; //没有数据时等待时间
+        private int PreReadSecond = 10; //没有数据时等待时间
         public event Func<ScheduleTaskContext, Task> OnHandleMessage;
 
         readonly string ScheduleTaskLock = "ScheduleTaskLock";
@@ -143,7 +143,7 @@ namespace Aix.ScheduleTask
             List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
 
             var now = DateTimeUtils.GetTimeStamp();
-            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now); 
+            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now);
             //处理
             foreach (var task in taskList)
             {
@@ -152,9 +152,13 @@ namespace Aix.ScheduleTask
                 var Schedule = ParseCron(task);
                 if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
                 var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
-                if (nextExecuteTimeSpan.TotalMilliseconds <= 0) //时间到了，开始执行任务
+
+                if (nextExecuteTimeSpan <= TimeSpan.Zero) //时间到了，开始执行任务
                 {
-                    await HandleMessage(task); //建议插入任务队列
+                    if (nextExecuteTimeSpan >= TimeSpan.FromSeconds(0 - PreReadSecond))//排除过期太久的，（服务停了好久，再启动下次执行时间估计很早之前的了，就不执行了）
+                    {
+                        await HandleMessage(task); //建议插入任务队列
+                    }
 
                     now = DateTimeUtils.GetTimeStamp();
                     task.LastExecuteTime = now;
@@ -256,10 +260,10 @@ namespace Aix.ScheduleTask
             var nextOccurrence = GetNexeTime(Schedule, LastDueTime);
             TimeSpan dueTime = nextOccurrence - now;// DateTime.Now;
 
-            if (dueTime.TotalMilliseconds <= 0)
-            {
-                dueTime = TimeSpan.Zero;
-            }
+            //if (dueTime.TotalMilliseconds <= 0)
+            //{
+            //    dueTime = TimeSpan.Zero;
+            //}
 
             return dueTime;
         }

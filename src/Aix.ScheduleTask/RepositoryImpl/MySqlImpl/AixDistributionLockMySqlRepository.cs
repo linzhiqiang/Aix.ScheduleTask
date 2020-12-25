@@ -30,7 +30,7 @@ namespace Aix.ScheduleTask.RepositoryImpl
         /// <returns></returns>
         public Task<string> UseLock(string lockName, int commandTimeout = 300)
         {
-            string sql = "select lock_name from aix_distribution_lock where lock_name=@lockName for update nowait ";
+            string sql = "select lock_name from aix_distribution_lock where lock_name=@lockName for update ";//低版本不支持 for update nowait
             return base.ExecuteScalarAsync<string>(sql, new { lockName }, commandTimeout);
         }
     }
