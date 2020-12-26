@@ -50,7 +50,7 @@ namespace Aix.ScheduleTask
         private RepeatChecker _repeatStopChecker = new RepeatChecker();
         // private CancellationToken StopingToken;
 
-        private int PreReadSecond = 10; //没有数据时等待时间
+        private int PreReadSecond = 10; //提前读取多长数据
         public event Func<ScheduleTaskContext, Task> OnHandleMessage;
 
         readonly string ScheduleTaskLock = "ScheduleTaskLock";
