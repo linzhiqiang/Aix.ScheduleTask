@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>分布式定时任务:数据库实现支持 sqlserver、mysql</Description>
-    <Version>1.0.6</Version>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <Version>1.0.7</Version>
+    <PackageReleaseNotes>修改分组字段</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

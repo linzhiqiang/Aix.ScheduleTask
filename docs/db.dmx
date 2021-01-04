@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="GB2312"?>
+<CTOXML>
+
+<DataModels>
+  <CTVER>43543231</CTVER>
+  <TableCount>3</TableCount>
+  <Count>1</Count>
+</DataModels>
+
+
+<DataModels_items1>
+  <ID>7</ID>
+  <Name>分布式任务</Name>
+  <CreateDate>2020/6/24 12:45:36</CreateDate>
+  <OrderNo>1</OrderNo>
+  <ConfigStr>DrawerWidth=1500
+DrawerHeight=2880
+WorkAreaColor=16777215
+SelectedColor=-16777203
+DefaultObjectColor=16777215
+DefaultTitleColor=255
+DefaultPKColor=16711935
+DefaultFKColor=16711680
+DefaultBorderColor=255
+DefaultLineColor=16711680
+ShowFieldType=1
+ShowFieldIcon=0
+ShowPhyFieldName=2
+DatabaseEngine=
+GenFKIndexesSQL=0
+</ConfigStr>
+</DataModels_items1>
+
+
+<DataModels_items1_Tables>
+  <Count>3</Count>
+</DataModels_items1_Tables>
+
+
+<DataModels_items1_Tables_items1>
+  <ID>2</ID>
+  <Name>aix_distribution_lock</Name>
+  <Caption>分布式锁</Caption>
+  <CreateDate>2020/6/8 13:41:26</CreateDate>
+  <OrderNo>1</OrderNo>
+  <GraphDesc>Left=135.00
+Top=28.00</GraphDesc>
+</DataModels_items1_Tables_items1>
+
+
+<DataModels_items1_Tables_items1_MetaFields>
+  <Count>1</Count>
+</DataModels_items1_Tables_items1_MetaFields>
+
+
+<DataModels_items1_Tables_items1_MetaFields_items1>
+  <ID>1</ID>
+  <Name>lock_name</Name>
+  <CreateDate>2020/6/8 13:41:26</CreateDate>
+  <OrderNo>1</OrderNo>
+  <DisplayName>主键</DisplayName>
+  <DataType>1</DataType>
+  <KeyFieldType>1</KeyFieldType>
+  <DataLength>50</DataLength>
+</DataModels_items1_Tables_items1_MetaFields_items1>
+
+
+<DataModels_items1_Tables_items2>
+  <ID>9</ID>
+  <Name>aix_schedule_task_info</Name>
+  <Caption>定时任务</Caption>
+  <CreateDate>2020/6/9 12:34:27</CreateDate>
+  <OrderNo>2</OrderNo>
+  <GraphDesc>Left=358.00
+Top=29.00</GraphDesc>
+</DataModels_items1_Tables_items2>
+
+
+<DataModels_items1_Tables_items2_MetaFields>
+  <Count>14</Count>
+</DataModels_items1_Tables_items2_MetaFields>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items1>
+  <ID>1</ID>
+  <Name>id</Name>
+  <CreateDate>2020/6/9 12:34:27</CreateDate>
+  <OrderNo>1</OrderNo>
+  <DisplayName>主键</DisplayName>
+  <DataType>2</DataType>
+  <KeyFieldType>1</KeyFieldType>
+  <DefaultValue>{auto_increment}</DefaultValue>
+  <Nullable>1</Nullable>
+</DataModels_items1_Tables_items2_MetaFields_items1>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items2>
+  <ID>14</ID>
+  <Name>task_group</Name>
+  <Memo>根据需要进行扩展</Memo>
+  <CreateDate>2020/12/22 12:52:10</CreateDate>
+  <OrderNo>2</OrderNo>
+  <DisplayName>所属组</DisplayName>
+  <DataType>1</DataType>
+  <Nullable>1</Nullable>
+  <DataLength>50</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items2>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items3>
+  <ID>2</ID>
+  <Name>status</Name>
+  <Memo>0=禁用 1=启动</Memo>
+  <CreateDate>2020/6/9 12:34:27</CreateDate>
+  <OrderNo>3</OrderNo>
+  <DisplayName>状态</DisplayName>
+  <DataType>6</DataType>
+  <DefaultValue>0</DefaultValue>
+</DataModels_items1_Tables_items2_MetaFields_items3>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items4>
+  <ID>474</ID>
+  <Name>task_name</Name>
+  <CreateDate>2020/6/9 12:36:11</CreateDate>
+  <OrderNo>4</OrderNo>
+  <DisplayName>任务名称</DisplayName>
+  <DataType>1</DataType>
+  <DataLength>50</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items4>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items5>
+  <ID>174</ID>
+  <Name>task_desc</Name>
+  <CreateDate>2020/6/9 13:21:35</CreateDate>
+  <OrderNo>5</OrderNo>
+  <DisplayName>任务描述</DisplayName>
+  <DataType>1</DataType>
+  <Nullable>1</Nullable>
+  <DataLength>200</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items5>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items6>
+  <ID>121</ID>
+  <Name>cron</Name>
+  <CreateDate>2020/6/9 13:13:49</CreateDate>
+  <OrderNo>6</OrderNo>
+  <DisplayName>定时表达式</DisplayName>
+  <DataType>1</DataType>
+  <DataLength>50</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items6>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items7>
+  <ID>130</ID>
+  <Name>executor_param</Name>
+  <CreateDate>2020/6/9 13:16:41</CreateDate>
+  <OrderNo>7</OrderNo>
+  <DisplayName>执行参数</DisplayName>
+  <DataType>1</DataType>
+  <Nullable>1</Nullable>
+  <DataLength>500</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items7>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items8>
+  <ID>161</ID>
+  <Name>last_execute_time</Name>
+  <CreateDate>2020/6/9 13:20:19</CreateDate>
+  <OrderNo>8</OrderNo>
+  <DisplayName>上次执行时间</DisplayName>
+  <DataType>2</DataType>
+  <DataTypeName>BIGINT</DataTypeName>
+  <DefaultValue>0</DefaultValue>
+</DataModels_items1_Tables_items2_MetaFields_items8>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items9>
+  <ID>106</ID>
+  <Name>next_execute_time</Name>
+  <CreateDate>2020/6/9 13:12:29</CreateDate>
+  <OrderNo>9</OrderNo>
+  <DisplayName>下次执行时间</DisplayName>
+  <DataType>2</DataType>
+  <DataTypeName>BIGINT</DataTypeName>
+  <DefaultValue>0</DefaultValue>
+</DataModels_items1_Tables_items2_MetaFields_items9>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items10>
+  <ID>272</ID>
+  <Name>max_retry_count</Name>
+  <Memo>0=不重试</Memo>
+  <CreateDate>2020/6/9 13:27:58</CreateDate>
+  <OrderNo>10</OrderNo>
+  <DisplayName>最大重试次数</DisplayName>
+  <DataType>2</DataType>
+  <DefaultValue>0</DefaultValue>
+</DataModels_items1_Tables_items2_MetaFields_items10>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items11>
+  <ID>148</ID>
+  <Name>creator_id</Name>
+  <CreateDate>2020/6/9 13:18:44</CreateDate>
+  <OrderNo>11</OrderNo>
+  <DisplayName>创建人编号</DisplayName>
+  <DataType>1</DataType>
+  <DataLength>50</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items11>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items12>
+  <ID>6</ID>
+  <Name>create_time</Name>
+  <CreateDate>2020/6/9 12:34:27</CreateDate>
+  <OrderNo>12</OrderNo>
+  <DisplayName>创建日期</DisplayName>
+  <DataType>4</DataType>
+  <DefaultValue>CURRENT_TIMESTAMP</DefaultValue>
+</DataModels_items1_Tables_items2_MetaFields_items12>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items13>
+  <ID>149</ID>
+  <Name>modifier_id</Name>
+  <CreateDate>2020/6/9 13:18:44</CreateDate>
+  <OrderNo>13</OrderNo>
+  <DisplayName>修改人编号</DisplayName>
+  <DataType>1</DataType>
+  <DataLength>50</DataLength>
+</DataModels_items1_Tables_items2_MetaFields_items13>
+
+
+<DataModels_items1_Tables_items2_MetaFields_items14>
+  <ID>8</ID>
+  <Name>modify_time</Name>
+  <CreateDate>2020/6/9 12:34:27</CreateDate>
+  <OrderNo>14</OrderNo>
+  <DisplayName>修改日期</DisplayName>
+  <DataType>4</DataType>
+  <DefaultValue>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</DefaultValue>
+</DataModels_items1_Tables_items2_MetaFields_items14>
+
+
+<DataModels_items1_Tables_items3>
+  <ID>10</ID>
+  <Name>aix_schedule_task_log</Name>
+  <Caption>定时任务log</Caption>
+  <CreateDate>2020/6/9 13:38:45</CreateDate>
+  <OrderNo>3</OrderNo>
+  <GraphDesc>Left=667.00
+Top=23.00</GraphDesc>
+</DataModels_items1_Tables_items3>
+
+
+<DataModels_items1_Tables_items3_MetaFields>
+  <Count>6</Count>
+</DataModels_items1_Tables_items3_MetaFields>
+
+
+<DataModels_items1_Tables_items3_MetaFields_items1>
+  <ID>1</ID>
+  <Name>id</Name>
+  <CreateDate>2020/6/9 13:38:45</CreateDate>
+  <OrderNo>1</OrderNo>
+  <DisplayName>主键</DisplayName>
+  <DataType>2</DataType>
+  <KeyFieldType>1</KeyFieldType>
+  <DefaultValue>{auto_increment}</DefaultValue>
+</DataModels_items1_Tables_items3_MetaFields_items1>
+
+
+<DataModels_items1_Tables_items3_MetaFields_items2>
+  <ID>337</ID>
+  <Name>schedule_task_id</Name>
+  <CreateDate>2020/6/9 13:40:26</CreateDate>
+  <OrderNo>2</OrderNo>
+  <DisplayName>定时任务id</DisplayName>
+  <DataType>2</DataType>
+</DataModels_items1_Tables_items3_MetaFields_items2>
+
+
+<DataModels_items1_Tables_items3_MetaFields_items3>
+  <ID>342</ID>
+  <Name>result_code</Name>
+  <CreateDate>2020/6/9 13:42:00</CreateDate>
+  <OrderNo>3</OrderNo>
+  <DisplayName>结果code</DisplayName>
+  <DataType>2</DataType>
+</DataModels_items1_Tables_items3_MetaFields_items3>
+
+
+<DataModels_items1_Tables_items3_MetaFields_items4>
+  <ID>343</ID>
+  <Name>result_message</Name>
+  <CreateDate>2020/6/9 13:42:23</CreateDate>
+  <OrderNo>4</OrderNo>
+  <DisplayName>结果信息</DisplayName>
+  <DataType>1</DataType>
+  <Nullable>1</Nullable>
+  <DataLength>2000</DataLength>
+</DataModels_items1_Tables_items3_MetaFields_items4>
+
+
+<DataModels_items1_Tables_items3_MetaFields_items5>
+  <ID>6</ID>
+  <Name>create_time</Name>
+  <CreateDate>2020/6/9 13:38:45</CreateDate>
+  <OrderNo>5</OrderNo>
+  <DisplayName>创建日期</DisplayName>
+  <DataType>4</DataType>
+  <DefaultValue>CURRENT_TIMESTAMP</DefaultValue>
+</DataModels_items1_Tables_items3_MetaFields_items5>
+
+
+<DataModels_items1_Tables_items3_MetaFields_items6>
+  <ID>8</ID>
+  <Name>modify_time</Name>
+  <CreateDate>2020/6/9 13:38:45</CreateDate>
+  <OrderNo>6</OrderNo>
+  <DisplayName>修改日期</DisplayName>
+  <DataType>4</DataType>
+  <DefaultValue>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</DefaultValue>
+</DataModels_items1_Tables_items3_MetaFields_items6>
+
+
+</CTOXML>

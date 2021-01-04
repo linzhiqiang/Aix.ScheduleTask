@@ -14,7 +14,7 @@ namespace Aix.ScheduleTask.Model
         /// <summary>
         /// 执行器 根据需要扩展
         /// </summary>
-        public string Executor { get; set; }
+        public string TaskGroup { get; set; }
 
         /// <summary>
         /// 执行参数

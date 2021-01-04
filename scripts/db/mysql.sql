@@ -12,7 +12,7 @@ alter  table `aix_distribution_lock`
 create table  `aix_schedule_task_info`
 (
        `id`              INT auto_increment primary key not null comment '主键',
-       `executor`        VARCHAR(50) comment '执行器 根据需要进行扩展',
+       `task_group`      VARCHAR(50) comment '所属组 根据需要进行扩展',
        `status`          TINYINT default 0 not null comment '状态 0=禁用 1=启动',
        `task_name`       VARCHAR(50) not null comment '任务名称',
        `task_desc`       VARCHAR(200) comment '任务描述',

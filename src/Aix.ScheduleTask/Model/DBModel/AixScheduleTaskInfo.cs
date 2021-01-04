@@ -17,7 +17,7 @@ namespace Aix.ScheduleTask.Model
     public partial class AixScheduleTaskInfo : BaseEntity
     {
         private int _id;
-        private string _executor;
+        private string _task_group;
         private byte _status;
         private string _task_name;
         private string _task_desc;
@@ -45,11 +45,11 @@ namespace Aix.ScheduleTask.Model
         /// <summary>
         /// 执行器 根据需要进行扩展  varchar(50)
         /// <summary>
-        [Column("executor", IsNullable = true)]
-        public string Executor
+        [Column("task_group", IsNullable = true)]
+        public string TaskGroup
         {
-            get { return _executor; }
-            set { _executor = value; OnPropertyChanged("executor"); }
+            get { return _task_group; }
+            set { _task_group = value; OnPropertyChanged("task_group"); }
         }
         /// <summary>
         /// 状态 0=禁用 1=启动  tinyint(1)
@@ -160,5 +160,4 @@ namespace Aix.ScheduleTask.Model
             set { _modify_time = value; OnPropertyChanged("modify_time"); }
         }
     }
-
 }

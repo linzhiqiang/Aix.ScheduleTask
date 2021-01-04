@@ -195,7 +195,7 @@ namespace Aix.ScheduleTask
                 //_aixScheduleTaskRepository.OpenNewContext();
                 try
                 {
-                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, Executor = taskInfo.Executor, ExecutorParam = taskInfo.ExecutorParam });
+                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, TaskGroup = taskInfo.TaskGroup, ExecutorParam = taskInfo.ExecutorParam });
                 }
                 catch (OperationCanceledException ex)
                 {
