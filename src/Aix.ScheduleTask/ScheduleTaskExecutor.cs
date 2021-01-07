@@ -33,7 +33,7 @@ namespace Aix.ScheduleTask
     }
 
     /// <summary>
-    /// 定时任务执行器  不建议秒级的定时任务
+    /// 定时任务执行器  不建议间隔10秒一下的的定时任务
     /// </summary>
     public class ScheduleTaskExecutor : IScheduleTaskExecutor
     {
@@ -195,7 +195,7 @@ namespace Aix.ScheduleTask
                 //_aixScheduleTaskRepository.OpenNewContext();
                 try
                 {
-                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, TaskGroup = taskInfo.TaskGroup, ExecutorParam = taskInfo.ExecutorParam });
+                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, TaskGroup = taskInfo.TaskGroup, TaskContent = taskInfo.TaskContent });
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -203,7 +203,7 @@ namespace Aix.ScheduleTask
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"定时任务执行出错 {taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
+                    _logger.LogError(ex, $"定时任务执行出错 {taskInfo.Id},{taskInfo.TaskName},{taskInfo.TaskContent}");
                 }
 
             });
@@ -305,7 +305,7 @@ namespace Aix.ScheduleTask
             if (count >= 2000)
             {
                 _logger.LogWarning("*******************************************");
-                _logger.LogWarning("定制任务数量太大，需要优化为分页轮询");
+                _logger.LogWarning("定时任务数量太大，需要优化为分页轮询");
                 _logger.LogWarning("*******************************************");
             }
         }

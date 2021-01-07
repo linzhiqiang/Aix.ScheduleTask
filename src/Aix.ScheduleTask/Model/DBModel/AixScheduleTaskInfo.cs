@@ -22,7 +22,7 @@ namespace Aix.ScheduleTask.Model
         private string _task_name;
         private string _task_desc;
         private string _cron;
-        private string _executor_param;
+        private string _task_content;
         private long _last_execute_time;
         private long _next_execute_time;
         private int _max_retry_count;
@@ -90,11 +90,11 @@ namespace Aix.ScheduleTask.Model
         /// <summary>
         /// 执行参数  varchar(500)
         /// <summary>
-        [Column("executor_param", IsNullable = true)]
-        public string ExecutorParam
+        [Column("task_content", IsNullable = true)]
+        public string TaskContent
         {
-            get { return _executor_param; }
-            set { _executor_param = value; OnPropertyChanged("executor_param"); }
+            get { return _task_content; }
+            set { _task_content = value; OnPropertyChanged("task_content"); }
         }
         /// <summary>
         /// 上次执行时间  bigint(8)
@@ -160,4 +160,5 @@ namespace Aix.ScheduleTask.Model
             set { _modify_time = value; OnPropertyChanged("modify_time"); }
         }
     }
+
 }

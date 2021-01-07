@@ -17,8 +17,8 @@ namespace Aix.ScheduleTask.Model
         public string TaskGroup { get; set; }
 
         /// <summary>
-        /// 执行参数
+        /// 任务内容
         /// </summary>
-        public string ExecutorParam { get; set; }
+        public string TaskContent { get; set; }
     }
 }
