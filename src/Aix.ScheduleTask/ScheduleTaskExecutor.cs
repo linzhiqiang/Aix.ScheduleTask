@@ -43,6 +43,7 @@ namespace Aix.ScheduleTask
         private readonly IScheduleTaskDistributedLock _scheduleTaskDistributedLock;
         private readonly AixScheduleTaskOptions _options;
         private readonly IScheduleTaskLifetime _scheduleTaskLifetime;
+        private readonly MyMultithreadTaskExecutor _taskExecutor;
 
         private ConcurrentDictionary<string, CrontabSchedule> CrontabScheduleCache = new ConcurrentDictionary<string, CrontabSchedule>();
         //private volatile bool _isStart = false;
@@ -60,7 +61,8 @@ namespace Aix.ScheduleTask
             IScheduleTaskLifetime scheduleTaskLifetime,
             IAixScheduleTaskRepository aixScheduleTaskRepository,
             IAixDistributionLockRepository aixDistributionLockRepository,
-            IScheduleTaskDistributedLock scheduleTaskDistributedLock
+            IScheduleTaskDistributedLock scheduleTaskDistributedLock,
+            MyMultithreadTaskExecutor taskExecutor
             )
         {
             _logger = logger;
@@ -71,6 +73,7 @@ namespace Aix.ScheduleTask
             _aixScheduleTaskRepository = aixScheduleTaskRepository;
             _aixDistributionLockRepository = aixDistributionLockRepository;
             _scheduleTaskDistributedLock = scheduleTaskDistributedLock;
+            _taskExecutor = taskExecutor;
         }
 
         public Task Start()
@@ -84,7 +87,7 @@ namespace Aix.ScheduleTask
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "定时任务启动出错");
+                    _logger.LogError(ex, "Aix.ScheduleTask定时任务启动出错");
                 }
 
             }, TaskCreationOptions.LongRunning);
@@ -103,13 +106,13 @@ namespace Aix.ScheduleTask
                 }
                 catch (OperationCanceledException ex)
                 {
-                    _logger.LogError(ex, "定时任务取消");
+                    _logger.LogError(ex, "Aix.ScheduleTask定时任务取消");
                 }
                 catch (Exception ex)
                 {
                     if (ex.Message.ToLower().IndexOf("timeout") < 0)
                     {
-                        _logger.LogError(ex, "定时任务执行出错");
+                        _logger.LogError(ex, "Aix.ScheduleTask定时任务执行出错");
                         await TaskEx.DelayNoException(TimeSpan.FromSeconds(5), _scheduleTaskLifetime.ScheduleTaskStopping);
                     }
                 }
@@ -141,6 +144,13 @@ namespace Aix.ScheduleTask
         private async Task<List<TimeSpan>> Execute()
         {
             List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
+
+            if (_taskExecutor.GetTaskCount() > 100000)
+            {
+                _logger.LogWarning("Aix.ScheduleTask定时任务积压太多超过100000条定时任务待处理");
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                return nextExecuteDelays;
+            }
 
             var now = DateTimeUtils.GetTimeStamp();
             var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now);
@@ -190,23 +200,40 @@ namespace Aix.ScheduleTask
             //把线程队列引用过来，根据id进入不同的线程队列，保证串行执行
 
             // _logger.LogDebug($"执行定时任务:{taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
-            Task.Run(async () =>
-            {
-                //_aixScheduleTaskRepository.OpenNewContext();
+          
+            _taskExecutor.Execute(async(state)=> {
+                var innerTaskInfo = (AixScheduleTaskInfo)state;
                 try
                 {
-                    await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, TaskGroup = taskInfo.TaskGroup, TaskContent = taskInfo.TaskContent });
+                    await OnHandleMessage(new ScheduleTaskContext { Id = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
                 }
                 catch (OperationCanceledException ex)
                 {
-                    _logger.LogError(ex, "任务取消");
+                    _logger.LogError(ex, "Aix.ScheduleTask任务取消");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"定时任务执行出错 {taskInfo.Id},{taskInfo.TaskName},{taskInfo.TaskContent}");
+                    _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
                 }
+            }, taskInfo);
 
-            });
+            //Task.Run(async () =>
+            //{
+            //    //_aixScheduleTaskRepository.OpenNewContext();
+            //    try
+            //    {
+            //        await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, TaskGroup = taskInfo.TaskGroup, TaskContent = taskInfo.TaskContent });
+            //    }
+            //    catch (OperationCanceledException ex)
+            //    {
+            //        _logger.LogError(ex, "任务取消");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogError(ex, $"定时任务执行出错 {taskInfo.Id},{taskInfo.TaskName},{taskInfo.TaskContent}");
+            //    }
+
+            //});
 
             return Task.CompletedTask;
         }
@@ -232,7 +259,7 @@ namespace Aix.ScheduleTask
             CrontabSchedule result = null;
             try
             {
-                if (string.IsNullOrEmpty(cron)) throw new Exception($"任务{task.Id},{task.TaskName}表达式配置为空");
+                if (string.IsNullOrEmpty(cron)) throw new Exception($"Aix.ScheduleTask任务{task.Id},{task.TaskName}表达式配置为空");
                 if (CrontabScheduleCache.TryGetValue(cron, out result))
                 {
                     return result;
@@ -246,7 +273,7 @@ namespace Aix.ScheduleTask
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
+                _logger.LogError(ex, $"Aix.ScheduleTask定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
             }
             return result;
         }
@@ -293,7 +320,7 @@ namespace Aix.ScheduleTask
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "定时任务初始化出错");
+                _logger.LogError(ex, "Aix.ScheduleTask定时任务初始化出错");
                 throw;
 
 

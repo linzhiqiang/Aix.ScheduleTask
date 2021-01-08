@@ -25,5 +25,10 @@ namespace Aix.ScheduleTask
         /// 集群类型 0=多集群（默认值）  1=单实例
         /// </summary>
         public int ClusterType { get; set; } = 0;
+
+        /// <summary>
+        /// 消费线程数 默认2
+        /// </summary>
+        public int ConsumerThreadCount { get; set; } = 2;
     }
 }

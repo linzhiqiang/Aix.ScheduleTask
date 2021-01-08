@@ -4,9 +4,11 @@ using Aix.ScheduleTask.Foundation.Locked;
 using Aix.ScheduleTask.Repository;
 using Aix.ScheduleTask.RepositoryImpl;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Aix.ScheduleTask
 {
@@ -51,6 +53,8 @@ namespace Aix.ScheduleTask
           
             services.AddSingleton<IScheduleTaskExecutor, ScheduleTaskExecutor>();
             services.AddSingleton<IScheduleTaskLifetime,ScheduleTaskLifetime>();
+
+            services.AddAddMultithreadExecutor(options.ConsumerThreadCount);
             return services;
         }
 
@@ -58,6 +62,28 @@ namespace Aix.ScheduleTask
         {
             services.AddSingleton<IScheduleTaskDistributedLock, T>();
             return services;
+        }
+
+
+        private static void AddAddMultithreadExecutor(this IServiceCollection services, int consumerThreadCount)
+        {
+            if (consumerThreadCount <= 0) throw new ArgumentException("RedisMessageBus消费者线程数必须大于0");
+            services.AddSingleton(serviceProvider =>
+            {
+                var logger = serviceProvider.GetService<ILogger<MyMultithreadTaskExecutor>>();
+                var taskExecutor = new MyMultithreadTaskExecutor(options =>
+                {
+                    options.ThreadCount = consumerThreadCount;// Environment.ProcessorCount * 2;
+                });
+                taskExecutor.OnException += ex =>
+                {
+                    logger.LogError(ex, "Aix.ScheduleTask本地多线程任务执行器执行出错");
+                    return Task.CompletedTask;
+                };
+                taskExecutor.Start();
+                logger.LogInformation($"Aix.ScheduleTask本地多线程任务执行器开始 ThreadCount={taskExecutor.ThreadCount}......");
+                return taskExecutor;
+            });
         }
 
         private static void ValidOptions(AixScheduleTaskOptions options)

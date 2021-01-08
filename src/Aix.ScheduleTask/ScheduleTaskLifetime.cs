@@ -53,17 +53,17 @@ namespace Aix.ScheduleTask
 
             ScheduleTaskStarted.Register(() =>
             {
-                _logger.LogInformation("定时任务开始执行......");
+                _logger.LogInformation("Aix.ScheduleTask定时任务开始执行......");
             });
 
             ScheduleTaskStopping.Register(() =>
             {
-                _logger.LogInformation("定时任务结束中......");
+                _logger.LogInformation("Aix.ScheduleTask定时任务结束中......");
             });
 
             ScheduleTaskStopped.Register(() =>
             {
-                _logger.LogInformation("定时任务已结束......");
+                _logger.LogInformation("Aix.ScheduleTask定时任务已结束......");
             });
         }
 
@@ -86,7 +86,7 @@ namespace Aix.ScheduleTask
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("An error occurred stopping the scheduletask", ex);
+                    _logger.LogError("An error occurred stopping the Aix.ScheduleTask", ex);
                 }
             }
         }
@@ -102,7 +102,7 @@ namespace Aix.ScheduleTask
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred starting the scheduletask", ex);
+                _logger.LogError("An error occurred starting the Aix.ScheduleTask", ex);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Aix.ScheduleTask
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred stopping the scheduletask", ex);
+                _logger.LogError("An error occurred stopping the Aix.ScheduleTask", ex);
             }
         }
 
