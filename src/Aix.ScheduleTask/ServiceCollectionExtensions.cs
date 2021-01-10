@@ -51,7 +51,7 @@ namespace Aix.ScheduleTask
                 services.AddSingleton<IScheduleTaskDistributedLock, ScheduleTaskDistributedLockDBImpl>();
             }
           
-            services.AddSingleton<IScheduleTaskExecutor, ScheduleTaskExecutor>();
+            services.AddSingleton<IScheduleTaskService, ScheduleTaskService>();
             services.AddSingleton<IScheduleTaskLifetime,ScheduleTaskLifetime>();
 
             services.AddAddMultithreadExecutor(options.ConsumerThreadCount);
@@ -67,7 +67,7 @@ namespace Aix.ScheduleTask
 
         private static void AddAddMultithreadExecutor(this IServiceCollection services, int consumerThreadCount)
         {
-            if (consumerThreadCount <= 0) throw new ArgumentException("RedisMessageBus消费者线程数必须大于0");
+            if (consumerThreadCount <= 0) throw new ArgumentException("Aix.ScheduleTask消费者线程数必须大于0");
             services.AddSingleton(serviceProvider =>
             {
                 var logger = serviceProvider.GetService<ILogger<MyMultithreadTaskExecutor>>();
@@ -91,7 +91,7 @@ namespace Aix.ScheduleTask
             if (options == null) throw new Exception("请配置options参数");
             if (string.IsNullOrEmpty(options.Master)) throw new Exception("请配置options.Master");
 
-            if (options.PreReadSecond <= 0) throw new Exception("配置options.CrontabIntervalSecond 非法");
+            if (options.PreReadSecond <= 0) throw new Exception("配置options.PreReadSecond 非法");
             if (options.PreReadSecond < 5) options.PreReadSecond = 5;
             if (options.PreReadSecond > 30) options.PreReadSecond = 30;
         }

@@ -25,7 +25,7 @@ namespace Aix.ScheduleTask
     比如每天9点半执行，如果9点半这个时刻你停了一会，9点半后重新启动， 这时会重新执行一次的。
      */
 
-    public interface IScheduleTaskExecutor : IDisposable
+    public interface IScheduleTaskService : IDisposable
     {
         Task Start();
 
@@ -33,11 +33,11 @@ namespace Aix.ScheduleTask
     }
 
     /// <summary>
-    /// 定时任务执行器  不建议间隔10秒一下的的定时任务
+    /// 定时任务执行器  不建议间隔10秒以下的的定时任务
     /// </summary>
-    public class ScheduleTaskExecutor : IScheduleTaskExecutor
+    public class ScheduleTaskService : IScheduleTaskService
     {
-        ILogger<ScheduleTaskExecutor> _logger;
+        ILogger<ScheduleTaskService> _logger;
         private readonly IAixScheduleTaskRepository _aixScheduleTaskRepository;
         private readonly IAixDistributionLockRepository _aixDistributionLockRepository;
         private readonly IScheduleTaskDistributedLock _scheduleTaskDistributedLock;
@@ -54,9 +54,9 @@ namespace Aix.ScheduleTask
         private int PreReadSecond = 10; //提前读取多长数据
         public event Func<ScheduleTaskContext, Task> OnHandleMessage;
 
-        readonly string ScheduleTaskLock = "ScheduleTaskLock";
+        readonly string ScheduleTaskLock = "AixScheduleTaskLock";
 
-        public ScheduleTaskExecutor(ILogger<ScheduleTaskExecutor> logger,
+        public ScheduleTaskService(ILogger<ScheduleTaskService> logger,
             AixScheduleTaskOptions options,
             IScheduleTaskLifetime scheduleTaskLifetime,
             IAixScheduleTaskRepository aixScheduleTaskRepository,

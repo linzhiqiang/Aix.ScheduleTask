@@ -8,7 +8,7 @@ EXEC sp_addextendedproperty 'MS_Description', '分布式锁', 'user', dbo, 'table', 
 EXEC sp_addextendedproperty 'MS_Description', '主键', 'user', dbo, 'table', aix_distribution_lock, 'column', lock_name;
 
 
-insert into aix_distribution_lock(lock_name) values('ScheduleTaskLock');
+insert into aix_distribution_lock(lock_name) values('AixScheduleTaskLock');
 
 
 
@@ -20,7 +20,7 @@ create table  aix_schedule_task_info
        task_name         VARCHAR(50) not null 	/*任务名称*/,
        task_desc         VARCHAR(200) 	/*任务描述*/,
        cron              VARCHAR(50) not null 	/*定时表达式*/,
-       task_content           VARCHAR(500) not null 	/*内容*/,
+       task_content      VARCHAR(500) not null 	/*内容*/,
        last_execute_time BIGINT default 0 not null 	/*上次执行时间*/,
        next_execute_time BIGINT default 0 not null 	/*下次执行时间*/,
        max_retry_count   INT default 0 not null 	/*最大重试次数 0=不重试*/,
@@ -38,7 +38,7 @@ EXEC sp_addextendedproperty 'MS_Description', '状态 0=禁用 1=启动', 'user', dbo,
 EXEC sp_addextendedproperty 'MS_Description', '任务名称', 'user', dbo, 'table', aix_schedule_task_info, 'column', task_name;
 EXEC sp_addextendedproperty 'MS_Description', '任务描述', 'user', dbo, 'table', aix_schedule_task_info, 'column', task_desc;
 EXEC sp_addextendedproperty 'MS_Description', '定时表达式', 'user', dbo, 'table', aix_schedule_task_info, 'column', cron;
-EXEC sp_addextendedproperty 'MS_Description', '内容', 'user', dbo, 'table', aix_schedule_task_info, 'column', content;
+EXEC sp_addextendedproperty 'MS_Description', '内容', 'user', dbo, 'table', aix_schedule_task_info, 'column', task_content;
 EXEC sp_addextendedproperty 'MS_Description', '上次执行时间', 'user', dbo, 'table', aix_schedule_task_info, 'column', last_execute_time;
 EXEC sp_addextendedproperty 'MS_Description', '下次执行时间', 'user', dbo, 'table', aix_schedule_task_info, 'column', next_execute_time;
 EXEC sp_addextendedproperty 'MS_Description', '最大重试次数 0=不重试', 'user', dbo, 'table', aix_schedule_task_info, 'column', max_retry_count;
