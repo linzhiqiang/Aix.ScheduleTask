@@ -41,6 +41,7 @@ namespace Aix.ScheduleTask
         private readonly IAixScheduleTaskRepository _aixScheduleTaskRepository;
         private readonly IAixDistributionLockRepository _aixDistributionLockRepository;
         private readonly IScheduleTaskDistributedLock _scheduleTaskDistributedLock;
+        private readonly IAixScheduleTaskLogRepository _aixScheduleTaskLogRepository;
         private readonly AixScheduleTaskOptions _options;
         private readonly IScheduleTaskLifetime _scheduleTaskLifetime;
         private readonly MyMultithreadTaskExecutor _taskExecutor;
@@ -62,6 +63,7 @@ namespace Aix.ScheduleTask
             IAixScheduleTaskRepository aixScheduleTaskRepository,
             IAixDistributionLockRepository aixDistributionLockRepository,
             IScheduleTaskDistributedLock scheduleTaskDistributedLock,
+            IAixScheduleTaskLogRepository aixScheduleTaskLogRepository,
             MyMultithreadTaskExecutor taskExecutor
             )
         {
@@ -73,6 +75,7 @@ namespace Aix.ScheduleTask
             _aixScheduleTaskRepository = aixScheduleTaskRepository;
             _aixDistributionLockRepository = aixDistributionLockRepository;
             _scheduleTaskDistributedLock = scheduleTaskDistributedLock;
+            _aixScheduleTaskLogRepository = aixScheduleTaskLogRepository;
             _taskExecutor = taskExecutor;
         }
 
@@ -200,9 +203,12 @@ namespace Aix.ScheduleTask
             //把线程队列引用过来，根据id进入不同的线程队列，保证串行执行
 
             // _logger.LogDebug($"执行定时任务:{taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
-          
-            _taskExecutor.Execute(async(state)=> {
+
+            _taskExecutor.Execute(async (state) =>
+            {
                 var innerTaskInfo = (AixScheduleTaskInfo)state;
+                int code = 0;
+                var message = "success";
                 try
                 {
                     await OnHandleMessage(new ScheduleTaskContext { Id = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
@@ -210,11 +216,17 @@ namespace Aix.ScheduleTask
                 catch (OperationCanceledException ex)
                 {
                     _logger.LogError(ex, "Aix.ScheduleTask任务取消");
+                    code = -1;
+                    message = ex.Message+","+ex.StackTrace;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
+                    code = -1;
+                    message = ex.Message + "," + ex.StackTrace;
                 }
+
+                await SaveExecuteLog(innerTaskInfo,code,message);
             }, taskInfo);
 
             //Task.Run(async () =>
@@ -236,6 +248,22 @@ namespace Aix.ScheduleTask
             //});
 
             return Task.CompletedTask;
+        }
+
+        private async Task SaveExecuteLog(AixScheduleTaskInfo taskInfo, int code, string message)
+        {
+            if (_options.SaveExecuteLog)
+            {
+                AixScheduleTaskLog log = new AixScheduleTaskLog
+                {
+                    ScheduleTaskId = taskInfo.Id,
+                    ResultCode = code,
+                    ResultMessage = StringUtils.SubString(message, 500),
+                    CreateTime = DateTime.Now,
+                    ModifyTime = DateTime.Now
+                };
+                await _aixScheduleTaskLogRepository.InsertAsync(log);
+            }
         }
 
         public void Dispose()

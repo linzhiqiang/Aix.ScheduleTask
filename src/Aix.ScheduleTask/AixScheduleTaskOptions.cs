@@ -30,5 +30,10 @@ namespace Aix.ScheduleTask
         /// 消费线程数 默认2
         /// </summary>
         public int ConsumerThreadCount { get; set; } = 2;
+
+        /// <summary>
+        /// 是否保存执行日志
+        /// </summary>
+        public bool SaveExecuteLog { get; set; } = false;
     }
 }

@@ -31,11 +31,13 @@ namespace Aix.ScheduleTask
             {
                 services.AddSingleton<IAixScheduleTaskRepository, AixScheduleTaskSqlServerRepository>();
                 services.AddSingleton<IAixDistributionLockRepository, AixDistributionLockSqlServerRepository>();
+                services.AddSingleton<IAixScheduleTaskLogRepository, AixScheduleTaskLogSqlServerRepository>();
             }
             else if (options.DBType == 2)
             {
                 services.AddSingleton<IAixScheduleTaskRepository, AixScheduleTaskMySqlRepository>();
                 services.AddSingleton<IAixDistributionLockRepository, AixDistributionLockMySqlRepository>();
+                services.AddSingleton<IAixScheduleTaskLogRepository, AixScheduleTaskLogMySqlRepository>();
             }
             else
             {

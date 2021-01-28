@@ -300,7 +300,7 @@ Top=23.00</GraphDesc>
   <DisplayName>结果信息</DisplayName>
   <DataType>1</DataType>
   <Nullable>1</Nullable>
-  <DataLength>2000</DataLength>
+  <DataLength>500</DataLength>
 </DataModels_items1_Tables_items3_MetaFields_items4>
 
 

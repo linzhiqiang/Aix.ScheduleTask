@@ -25,7 +25,8 @@ namespace Aix.ScheduleTask.Example
                 options.Master = dbOption.Master;
                 options.DBType = 1;
                 options.ConsumerThreadCount = 2;
-               // options.ClusterType = 1;
+                // options.ClusterType = 1;
+                options.SaveExecuteLog = false;
             })
             //.AddScheduleTaskDistributedLock<ScheduleTaskDistributedLockRedisImpl>()  //默认是用数据库的锁实现的，也可以替换为别的如redis锁等
             ;

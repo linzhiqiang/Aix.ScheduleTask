@@ -26,3 +26,13 @@ create table  `aix_schedule_task_info`
        `modifier_id`     VARCHAR(50) not null comment '修改人编号',
        `modify_time`     DATETIME default now() not null comment '修改日期'
 ) comment '定时任务';
+
+create table  `aix_schedule_task_log`
+(
+       `id`              INT auto_increment primary key not null comment '主键',
+       `schedule_task_id` INT not null comment '定时任务id',
+       `result_code`     INT not null comment '结果code',
+       `result_message`  VARCHAR(500) comment '结果信息',
+       `create_time`     DATETIME default now() not null comment '创建日期',
+       `modify_time`     DATETIME default now() not null comment '修改日期'
+) comment '定时任务log';
