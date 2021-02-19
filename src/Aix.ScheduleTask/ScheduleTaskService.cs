@@ -24,13 +24,7 @@ namespace Aix.ScheduleTask
 
     比如每天9点半执行，如果9点半这个时刻你停了一会，9点半后重新启动， 这时会重新执行一次的。
      */
-
-    public interface IScheduleTaskService : IDisposable
-    {
-        Task Start();
-
-        event Func<ScheduleTaskContext, Task> OnHandleMessage;
-    }
+    
 
     /// <summary>
     /// 定时任务执行器  不建议间隔10秒以下的的定时任务
@@ -204,11 +198,9 @@ namespace Aix.ScheduleTask
 
             // _logger.LogDebug($"执行定时任务:{taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
 
-            _taskExecutor.Execute(async (state) =>
+            _taskExecutor.GetSingleThreadTaskExecutor(taskInfo.Id).Execute(async (state) =>
             {
                 var innerTaskInfo = (AixScheduleTaskInfo)state;
-                int code = 0;
-                var message = "success";
                 try
                 {
                     await OnHandleMessage(new ScheduleTaskContext { Id = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
@@ -216,54 +208,33 @@ namespace Aix.ScheduleTask
                 catch (OperationCanceledException ex)
                 {
                     _logger.LogError(ex, "Aix.ScheduleTask任务取消");
-                    code = -1;
-                    message = ex.Message+","+ex.StackTrace;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
-                    code = -1;
-                    message = ex.Message + "," + ex.StackTrace;
                 }
-
-                await SaveExecuteLog(innerTaskInfo,code,message);
             }, taskInfo);
-
-            //Task.Run(async () =>
-            //{
-            //    //_aixScheduleTaskRepository.OpenNewContext();
-            //    try
-            //    {
-            //        await OnHandleMessage(new ScheduleTaskContext { Id = taskInfo.Id, TaskGroup = taskInfo.TaskGroup, TaskContent = taskInfo.TaskContent });
-            //    }
-            //    catch (OperationCanceledException ex)
-            //    {
-            //        _logger.LogError(ex, "任务取消");
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        _logger.LogError(ex, $"定时任务执行出错 {taskInfo.Id},{taskInfo.TaskName},{taskInfo.TaskContent}");
-            //    }
-
-            //});
 
             return Task.CompletedTask;
         }
 
-        private async Task SaveExecuteLog(AixScheduleTaskInfo taskInfo, int code, string message)
+        public Task SaveExecuteResult(ExecuteResultDTO resultDTO)
         {
-            if (_options.SaveExecuteLog)
+            _taskExecutor.Execute(async (state) =>
             {
                 AixScheduleTaskLog log = new AixScheduleTaskLog
                 {
-                    ScheduleTaskId = taskInfo.Id,
-                    ResultCode = code,
-                    ResultMessage = StringUtils.SubString(message, 500),
+                    ScheduleTaskId = resultDTO.Id,
+                    ResultCode = resultDTO.Code,
+                    ResultMessage = StringUtils.SubString(resultDTO.Message, 500),
                     CreateTime = DateTime.Now,
                     ModifyTime = DateTime.Now
                 };
                 await _aixScheduleTaskLogRepository.InsertAsync(log);
-            }
+            }, null);
+
+            return Task.CompletedTask;
+
         }
 
         public void Dispose()

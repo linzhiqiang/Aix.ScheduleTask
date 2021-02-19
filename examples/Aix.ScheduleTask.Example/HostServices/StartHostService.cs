@@ -14,7 +14,7 @@ namespace Aix.ScheduleTask.Example.HostServices
         private readonly ILogger<StartHostService> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHostEnvironment _hostEnvironment;
-        private readonly IScheduleTaskService  _scheduleTaskService;
+        private readonly IScheduleTaskService _scheduleTaskService;
 
         public StartHostService(ILogger<StartHostService> logger, IServiceProvider serviceProvider, IHostEnvironment hostEnvironment
             , IScheduleTaskService scheduleTaskService)
@@ -43,12 +43,27 @@ namespace Aix.ScheduleTask.Example.HostServices
             return Task.CompletedTask;
         }
 
-        private async Task _scheduleTaskExecutor_OnHandleMessage(Model.ScheduleTaskContext arg)
+        private async Task _scheduleTaskExecutor_OnHandleMessage(ScheduleTaskContext arg)
         {
-           //Console.WriteLine($"执行任务:{arg.ExecutorParam}");
-            _logger.LogInformation( $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.Id}——{arg.TaskContent}");
-           // await Task.Delay(TimeSpan.FromSeconds(5));
-            await Task.CompletedTask;
+            int code = 0;
+            string message = "success";
+            try
+            {
+                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.Id}——{arg.TaskContent}");
+                // await Task.Delay(TimeSpan.FromSeconds(5));
+
+            }
+            //catch(BizException ex)
+            //{
+            //    code = ex.Code;
+            //    message = ex.Message;
+            //}
+            catch (Exception ex)
+            {
+                code = -1;
+                message = ex.Message;
+            }
+            await _scheduleTaskService.SaveExecuteResult(new ExecuteResultDTO { Id = arg.Id, Code = 0, Message = "success" });
         }
     }
 }

@@ -29,11 +29,6 @@
             消费线程数 默认2
             </summary>
         </member>
-        <member name="P:Aix.ScheduleTask.AixScheduleTaskOptions.SaveExecuteLog">
-            <summary>
-            是否保存执行日志
-            </summary>
-        </member>
         <member name="T:Aix.ScheduleTask.Foundation.IScheduleTaskDistributedLock">
             <summary>
             分布式锁
@@ -70,6 +65,29 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="T:Aix.ScheduleTask.IScheduleTaskService">
+            <summary>
+            定时任务接口
+            </summary>
+        </member>
+        <member name="M:Aix.ScheduleTask.IScheduleTaskService.Start">
+            <summary>
+            开始定时任务服务
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="E:Aix.ScheduleTask.IScheduleTaskService.OnHandleMessage">
+            <summary>
+            接收定时任务事件
+            </summary>
+        </member>
+        <member name="M:Aix.ScheduleTask.IScheduleTaskService.SaveExecuteResult(Aix.ScheduleTask.ExecuteResultDTO)">
+            <summary>
+            保存执行结果
+            </summary>
+            <param name="resultDTO"></param>
+            <returns></returns>
+        </member>
         <!-- Badly formed XML comment ignored for member "T:Aix.ScheduleTask.Model.AixDistributionLock" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixDistributionLock.LockName" -->
         <!-- Badly formed XML comment ignored for member "T:Aix.ScheduleTask.Model.AixScheduleTaskInfo" -->
@@ -94,19 +112,39 @@
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ResultMessage" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.CreateTime" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ModifyTime" -->
-        <member name="P:Aix.ScheduleTask.Model.ScheduleTaskContext.Id">
+        <member name="P:Aix.ScheduleTask.ScheduleTaskContext.Id">
             <summary>
             定时任务id
             </summary>
         </member>
-        <member name="P:Aix.ScheduleTask.Model.ScheduleTaskContext.TaskGroup">
+        <member name="P:Aix.ScheduleTask.ScheduleTaskContext.TaskGroup">
             <summary>
             执行器 根据需要扩展
             </summary>
         </member>
-        <member name="P:Aix.ScheduleTask.Model.ScheduleTaskContext.TaskContent">
+        <member name="P:Aix.ScheduleTask.ScheduleTaskContext.TaskContent">
             <summary>
             任务内容
+            </summary>
+        </member>
+        <member name="T:Aix.ScheduleTask.ExecuteResultDTO">
+            <summary>
+            执行结果信息
+            </summary>
+        </member>
+        <member name="P:Aix.ScheduleTask.ExecuteResultDTO.Id">
+            <summary>
+            定时任务id
+            </summary>
+        </member>
+        <member name="P:Aix.ScheduleTask.ExecuteResultDTO.Code">
+            <summary>
+            状态码 
+            </summary>
+        </member>
+        <member name="P:Aix.ScheduleTask.ExecuteResultDTO.Message">
+            <summary>
+            直接结果描述
             </summary>
         </member>
         <member name="M:Aix.ScheduleTask.RepositoryImpl.AixDistributionLockMySqlRepository.UseLock(System.String,System.Int32)">

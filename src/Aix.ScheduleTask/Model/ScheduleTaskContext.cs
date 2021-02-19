@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Aix.ScheduleTask.Model
+namespace Aix.ScheduleTask
 {
     public class ScheduleTaskContext
     {
@@ -20,5 +20,26 @@ namespace Aix.ScheduleTask.Model
         /// 任务内容
         /// </summary>
         public string TaskContent { get; set; }
+    }
+
+    /// <summary>
+    /// 执行结果信息
+    /// </summary>
+    public class ExecuteResultDTO
+    {
+        /// <summary>
+        /// 定时任务id
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// 状态码 
+        /// </summary>
+        public int Code { get; set; }
+
+        /// <summary>
+        /// 直接结果描述
+        /// </summary>
+        public string Message { get; set; }
     }
 }

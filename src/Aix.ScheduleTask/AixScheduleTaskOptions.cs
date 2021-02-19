@@ -34,6 +34,6 @@ namespace Aix.ScheduleTask
         /// <summary>
         /// 是否保存执行日志
         /// </summary>
-        public bool SaveExecuteLog { get; set; } = false;
+       // public bool SaveExecuteLog { get; set; } = false;
     }
 }
