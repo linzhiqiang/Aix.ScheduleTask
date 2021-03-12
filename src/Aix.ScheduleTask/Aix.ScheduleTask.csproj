@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>分布式定时任务:数据库实现支持 sqlserver、mysql</Description>
-    <Version>1.0.14</Version>
-    <PackageReleaseNotes>添加任务完成回写结果</PackageReleaseNotes>
+    <Version>1.0.15</Version>
+    <PackageReleaseNotes>日志增加状态</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 

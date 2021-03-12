@@ -1,6 +1,6 @@
 ﻿/*
 该文件为自动生成，不要修改。
-生成时间：2021-01-26 13:38:39。
+生成时间：2021-03-12 14:42:28。
 */
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,7 @@ namespace Aix.ScheduleTask.Model
         private int _schedule_task_id; 
         private int _result_code; 
         private string _result_message; 
+        private int _status; 
         private DateTime _create_time; 
         private DateTime _modify_time; 
 
@@ -53,13 +54,22 @@ namespace Aix.ScheduleTask.Model
             set { _result_code = value; OnPropertyChanged("result_code"); }
         }
         /// <summary>
-        /// 结果信息  nvarchar(1000)
+        /// 结果信息  varchar(500)
         /// <summary>
         [Column("result_message",IsNullable=true)]
         public string ResultMessage
         {
             get { return _result_message; }
             set { _result_message = value; OnPropertyChanged("result_message"); }
+        }
+        /// <summary>
+        /// 状态 0=初始化 1=执行中 2=执行成功 9=执行失败  int(4)
+        /// <summary>
+        [Column("status",IsNullable=false,DefaultValue="0")]
+        public int Status
+        {
+            get { return _status; }
+            set { _status = value; OnPropertyChanged("status"); }
         }
         /// <summary>
         /// 创建日期  datetime(8)

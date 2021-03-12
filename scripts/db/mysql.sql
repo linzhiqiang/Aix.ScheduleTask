@@ -33,6 +33,7 @@ create table  `aix_schedule_task_log`
        `schedule_task_id` INT not null comment '定时任务id',
        `result_code`     INT not null comment '结果code',
        `result_message`  VARCHAR(500) comment '结果信息',
+       `status`          INT default 0 not null comment '状态 0=初始化 1=执行中 2=执行成功 9=执行失败',
        `create_time`     DATETIME default now() not null comment '创建日期',
        `modify_time`     DATETIME default now() not null comment '修改日期'
 ) comment '定时任务log';

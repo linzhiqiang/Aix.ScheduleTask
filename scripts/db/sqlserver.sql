@@ -54,7 +54,8 @@ create table  aix_schedule_task_log
        id                INT identity(1, 1) not null 	/*主键*/,
        schedule_task_id  INT not null 	/*定时任务id*/,
        result_code       INT not null 	/*结果code*/,
-       result_message    NVARCHAR(500) 	/*结果信息*/,
+       result_message    VARCHAR(500) 	/*结果信息*/,
+       status            INT default 0 not null 	/*状态 0=初始化 1=执行中 2=执行成功 9=执行失败*/,
        create_time       DATETIME default getdate() not null 	/*创建日期*/,
        modify_time       DATETIME default getdate() not null 	/*修改日期*/
 );
@@ -65,5 +66,6 @@ EXEC sp_addextendedproperty 'MS_Description', '主键', 'user', dbo, 'table', aix_
 EXEC sp_addextendedproperty 'MS_Description', '定时任务id', 'user', dbo, 'table', aix_schedule_task_log, 'column', schedule_task_id;
 EXEC sp_addextendedproperty 'MS_Description', '结果code', 'user', dbo, 'table', aix_schedule_task_log, 'column', result_code;
 EXEC sp_addextendedproperty 'MS_Description', '结果信息', 'user', dbo, 'table', aix_schedule_task_log, 'column', result_message;
+EXEC sp_addextendedproperty 'MS_Description', '状态 0=初始化 1=执行中 2=执行成功 9=执行失败', 'user', dbo, 'table', aix_schedule_task_log, 'column', status;
 EXEC sp_addextendedproperty 'MS_Description', '创建日期', 'user', dbo, 'table', aix_schedule_task_log, 'column', create_time;
 EXEC sp_addextendedproperty 'MS_Description', '修改日期', 'user', dbo, 'table', aix_schedule_task_log, 'column', modify_time;

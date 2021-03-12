@@ -7,7 +7,7 @@ namespace Aix.ScheduleTask
     public class ScheduleTaskContext
     {
         /// <summary>
-        /// 定时任务id
+        /// 定时任务logid
         /// </summary>
         public int Id { get; set; }
 
@@ -28,7 +28,7 @@ namespace Aix.ScheduleTask
     public class ExecuteResultDTO
     {
         /// <summary>
-        /// 定时任务id
+        /// 定时任务logid
         /// </summary>
         public int Id { get; set; }
 

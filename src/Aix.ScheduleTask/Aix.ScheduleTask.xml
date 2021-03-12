@@ -110,11 +110,12 @@
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ScheduleTaskId" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ResultCode" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ResultMessage" -->
+        <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.Status" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.CreateTime" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ModifyTime" -->
         <member name="P:Aix.ScheduleTask.ScheduleTaskContext.Id">
             <summary>
-            定时任务id
+            定时任务logid
             </summary>
         </member>
         <member name="P:Aix.ScheduleTask.ScheduleTaskContext.TaskGroup">
@@ -134,7 +135,7 @@
         </member>
         <member name="P:Aix.ScheduleTask.ExecuteResultDTO.Id">
             <summary>
-            定时任务id
+            定时任务logid
             </summary>
         </member>
         <member name="P:Aix.ScheduleTask.ExecuteResultDTO.Code">

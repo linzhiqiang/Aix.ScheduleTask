@@ -24,7 +24,7 @@ namespace Aix.ScheduleTask
 
     比如每天9点半执行，如果9点半这个时刻你停了一会，9点半后重新启动， 这时会重新执行一次的。
      */
-    
+
 
     /// <summary>
     /// 定时任务执行器  不建议间隔10秒以下的的定时任务
@@ -203,7 +203,8 @@ namespace Aix.ScheduleTask
                 var innerTaskInfo = (AixScheduleTaskInfo)state;
                 try
                 {
-                    await OnHandleMessage(new ScheduleTaskContext { Id = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
+                    var logId = await SaveLog(innerTaskInfo);
+                    await OnHandleMessage(new ScheduleTaskContext { Id = logId, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -218,19 +219,34 @@ namespace Aix.ScheduleTask
             return Task.CompletedTask;
         }
 
+        private async Task<int> SaveLog(AixScheduleTaskInfo taskInfo)
+        {
+            AixScheduleTaskLog log = new AixScheduleTaskLog
+            {
+                ScheduleTaskId = taskInfo.Id,
+                Status = 1,
+                ResultCode = 0,
+                ResultMessage = "",// StringUtils.SubString(resultDTO.Message, 500),
+                CreateTime = DateTime.Now,
+                ModifyTime = DateTime.Now
+            };
+            var newLogId = await _aixScheduleTaskLogRepository.InsertAsync(log);
+            return (int)newLogId;
+        }
+
         public Task SaveExecuteResult(ExecuteResultDTO resultDTO)
         {
             _taskExecutor.Execute(async (state) =>
             {
                 AixScheduleTaskLog log = new AixScheduleTaskLog
                 {
-                    ScheduleTaskId = resultDTO.Id,
+                    Id = resultDTO.Id,
+                    Status = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
                     ResultCode = resultDTO.Code,
                     ResultMessage = StringUtils.SubString(resultDTO.Message, 500),
-                    CreateTime = DateTime.Now,
                     ModifyTime = DateTime.Now
                 };
-                await _aixScheduleTaskLogRepository.InsertAsync(log);
+                await _aixScheduleTaskLogRepository.UpdateAsync(log);
             }, null);
 
             return Task.CompletedTask;
