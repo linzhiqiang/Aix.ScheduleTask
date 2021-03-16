@@ -29,6 +29,11 @@
             消费线程数 默认2
             </summary>
         </member>
+        <member name="P:Aix.ScheduleTask.AixScheduleTaskOptions.LogResultMessageMaxLength">
+            <summary>
+            保存日志信息最大长度 日志表的result_message最大长度 默认500
+            </summary>
+        </member>
         <member name="T:Aix.ScheduleTask.Foundation.IScheduleTaskDistributedLock">
             <summary>
             分布式锁

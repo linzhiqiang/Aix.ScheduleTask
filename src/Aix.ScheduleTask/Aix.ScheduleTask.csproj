@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>分布式定时任务:数据库实现支持 sqlserver、mysql</Description>
-    <Version>1.0.15</Version>
-    <PackageReleaseNotes>日志增加状态</PackageReleaseNotes>
+    <Version>1.0.16</Version>
+    <PackageReleaseNotes>优化</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -16,11 +16,11 @@
 
   <ItemGroup>
     <PackageReference Include="Aix.MultithreadExecutor" Version="1.0.2" />
-    <PackageReference Include="Aix.ORM" Version="1.0.7" />
+    <PackageReference Include="Aix.ORM" Version="1.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="ncrontab" Version="3.3.1" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 
 </Project>

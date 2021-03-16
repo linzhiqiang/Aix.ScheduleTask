@@ -243,7 +243,7 @@ namespace Aix.ScheduleTask
                     Id = resultDTO.Id,
                     Status = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
                     ResultCode = resultDTO.Code,
-                    ResultMessage = StringUtils.SubString(resultDTO.Message, 500),
+                    ResultMessage = StringUtils.SubString(resultDTO.Message, _options.LogResultMessageMaxLength >0 ? _options.LogResultMessageMaxLength : 500),
                     ModifyTime = DateTime.Now
                 };
                 await _aixScheduleTaskLogRepository.UpdateAsync(log);

@@ -32,8 +32,8 @@ namespace Aix.ScheduleTask
         public int ConsumerThreadCount { get; set; } = 2;
 
         /// <summary>
-        /// 是否保存执行日志
+        /// 保存日志信息最大长度 日志表的result_message最大长度 默认500
         /// </summary>
-       // public bool SaveExecuteLog { get; set; } = false;
+        public int LogResultMessageMaxLength { get; set; } = 500;
     }
 }
