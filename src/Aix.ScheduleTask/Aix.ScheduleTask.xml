@@ -34,6 +34,16 @@
             保存日志信息最大长度 日志表的result_message最大长度 默认500
             </summary>
         </member>
+        <member name="P:Aix.ScheduleTask.AixScheduleTaskOptions.Backlog">
+            <summary>
+            积压的任务数,来不及执行的任务数超过该值，就打印报警日志并暂停5秒
+            </summary>
+        </member>
+        <member name="P:Aix.ScheduleTask.AixScheduleTaskOptions.LogExpireHour">
+            <summary>
+            任务数据有效期 默认7天=168 单位  小时
+            </summary>
+        </member>
         <member name="T:Aix.ScheduleTask.Foundation.IScheduleTaskDistributedLock">
             <summary>
             分布式锁
@@ -240,6 +250,12 @@
             时间戳转时间
             </summary>
             <param name="timestamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.ScheduleTask.ScheduleTaskService.ScheduleDeleteExpireLog">
+            <summary>
+            清除过期日志
+            </summary>
             <returns></returns>
         </member>
         <member name="M:Aix.ScheduleTask.Utils.DateTimeUtils.TimeStampToDateTime(System.Int64)">

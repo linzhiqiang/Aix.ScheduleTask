@@ -22,7 +22,7 @@ namespace Aix.ScheduleTask
     month (1 - 12)
     day of week (0 - 6) (Sunday=0)
 
-    比如每天9点半执行，如果9点半这个时刻你停了一会，9点半后重新启动， 这时会重新执行一次的。
+    比如每天9点半执行，如果9点半这个时刻你停了一会，9点半后重新启动， 在{PreReadSecond}秒内继续执行，否则不执行(可能停机太久了，没必要执行了)
      */
 
 
@@ -95,6 +95,7 @@ namespace Aix.ScheduleTask
         private async Task InnerStart()
         {
             await Init();
+            await ScheduleDeleteExpireLog();
             while (!_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested)
             {
                 try
@@ -142,23 +143,22 @@ namespace Aix.ScheduleTask
         {
             List<TimeSpan> nextExecuteDelays = new List<TimeSpan>(); //记录每个任务的下次执行时间，取最小的等待
 
-            if (_taskExecutor.GetTaskCount() > 100000)
+            if (_taskExecutor.GetTaskCount() > _options.Backlog)
             {
-                _logger.LogWarning("Aix.ScheduleTask定时任务积压太多超过100000条定时任务待处理");
+                _logger.LogWarning($"Aix.ScheduleTask定时任务积压太多超过{_options.Backlog}条定时任务待处理");
                 await Task.Delay(TimeSpan.FromSeconds(5));
                 return nextExecuteDelays;
             }
 
             var now = DateTimeUtils.GetTimeStamp();
-            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now);
-            //处理
+            var taskList = await _aixScheduleTaskRepository.QueryAllEnabled(PreReadSecond * 1000 + now); //拉取即将到期的任务 提前{PreReadSecond}秒
+            //逐个处理
             foreach (var task in taskList)
             {
-                // if (_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested) break;
                 _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
 
                 var Schedule = ParseCron(task);
-                if (task.LastExecuteTime == 0) task.LastExecuteTime = now;
+                if (task.LastExecuteTime == 0) task.LastExecuteTime = now; //任务第一次执行时，从当前时间开始
                 var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
 
                 if (nextExecuteTimeSpan <= TimeSpan.Zero) //时间到了，开始执行任务
@@ -243,7 +243,7 @@ namespace Aix.ScheduleTask
                     Id = resultDTO.Id,
                     Status = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
                     ResultCode = resultDTO.Code,
-                    ResultMessage = StringUtils.SubString(resultDTO.Message, _options.LogResultMessageMaxLength >0 ? _options.LogResultMessageMaxLength : 500),
+                    ResultMessage = StringUtils.SubString(resultDTO.Message, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
                     ModifyTime = DateTime.Now
                 };
                 await _aixScheduleTaskLogRepository.UpdateAsync(log);
@@ -340,6 +340,36 @@ namespace Aix.ScheduleTask
 
 
             }
+        }
+
+        /// <summary>
+        /// 清除过期日志
+        /// </summary>
+        /// <returns></returns>
+        private  Task ScheduleDeleteExpireLog()
+        {
+            Task.Run(async() =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(30));
+                var logExpireHour = _options.LogExpireHour > 0 ? _options.LogExpireHour : 168 ;
+                while (true)
+                {
+                    _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
+                    try
+                    {
+                        var expiration = DateTime.Now.AddHours(0 - logExpireHour);
+                        await _aixScheduleTaskLogRepository.Delete(expiration);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "清除过期日志异常");
+                    }
+                    await TaskEx.DelayNoException(TimeSpan.FromHours(1), _scheduleTaskLifetime.ScheduleTaskStopping);
+                }
+            });
+
+            return Task.CompletedTask;
+            
         }
 
         private void WarnIfDataTooLarge(int count)

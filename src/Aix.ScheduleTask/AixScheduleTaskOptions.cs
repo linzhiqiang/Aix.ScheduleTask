@@ -35,5 +35,16 @@ namespace Aix.ScheduleTask
         /// 保存日志信息最大长度 日志表的result_message最大长度 默认500
         /// </summary>
         public int LogResultMessageMaxLength { get; set; } = 500;
+
+        /// <summary>
+        /// 积压的任务数,来不及执行的任务数超过该值，就打印报警日志并暂停5秒
+        /// </summary>
+        public int Backlog { get; set; } = 10000;
+
+        /// <summary>
+        /// 任务数据有效期 默认7天=168 单位  小时
+        /// </summary>
+        public int LogExpireHour { get; set; } = 168;
+
     }
 }
