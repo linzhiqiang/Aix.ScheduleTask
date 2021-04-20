@@ -30,7 +30,7 @@ namespace Aix.ScheduleTask.RepositoryImpl
         public  Task<List<AixScheduleTaskInfo>> QueryAllEnabled(long nextExecuteTime)
         {
             var column = GetAllColumns<AixScheduleTaskInfo>();
-            var sql = $"SELECT {column} FROM aix_schedule_task_info WHERE status=1 AND next_execute_time<=@nextExecuteTime ORDER BY id  ";
+            var sql = $"SELECT {column} FROM aix_schedule_task_info WHERE status=1 AND next_execute_time<=@nextExecuteTime ORDER BY next_execute_time  ";
             return base.QueryAsync<AixScheduleTaskInfo>(sql, new { nextExecuteTime });
         }
 

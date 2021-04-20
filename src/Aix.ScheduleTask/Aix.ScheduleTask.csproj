@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>分布式定时任务:数据库实现支持 sqlserver、mysql</Description>
-    <Version>1.0.17</Version>
+    <Version>1.0.18</Version>
     <PackageReleaseNotes>优化</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
@@ -12,6 +12,10 @@
     
     <DocumentationFile>F:\github\Aix\Aix.ScheduleTask\src\Aix.ScheduleTask\Aix.ScheduleTask.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>F:\github\Aix\Aix.ScheduleTask\src\Aix.ScheduleTask\Aix.ScheduleTask.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
