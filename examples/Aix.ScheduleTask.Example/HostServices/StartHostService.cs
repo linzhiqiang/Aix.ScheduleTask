@@ -49,7 +49,7 @@ namespace Aix.ScheduleTask.Example.HostServices
             string message = "success";
             try
             {
-                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.Id}——{arg.TaskContent}");
+                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.LogId}——{arg.TaskContent}");
                 // await Task.Delay(TimeSpan.FromSeconds(5));
 
             }
@@ -63,7 +63,7 @@ namespace Aix.ScheduleTask.Example.HostServices
                 code = -1;
                 message = ex.Message;
             }
-            await _scheduleTaskService.SaveExecuteResult(new ExecuteResultDTO { Id = arg.Id, Code = 0, Message = "success" });
+            await _scheduleTaskService.SaveExecuteResult(new ExecuteResultDTO { LogId = arg.LogId, Code = 0, Message = "success" });
         }
     }
 }

@@ -201,10 +201,11 @@ namespace Aix.ScheduleTask
             _taskExecutor.GetSingleThreadTaskExecutor(taskInfo.Id).Execute(async (state) =>
             {
                 var innerTaskInfo = (AixScheduleTaskInfo)state;
+                int logId = 0;
                 try
                 {
-                    var logId = await SaveLog(innerTaskInfo);
-                    await OnHandleMessage(new ScheduleTaskContext { Id = logId, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
+                    logId = await SaveLog(innerTaskInfo);
+                    await OnHandleMessage(new ScheduleTaskContext { LogId = logId, TaskId = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -213,6 +214,9 @@ namespace Aix.ScheduleTask
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
+                    //这里可以实现重试逻辑
+
+                    await UpdateTriggerCode(logId, -1, ex.Message);
                 }
             }, taskInfo);
 
@@ -224,7 +228,11 @@ namespace Aix.ScheduleTask
             AixScheduleTaskLog log = new AixScheduleTaskLog
             {
                 ScheduleTaskId = taskInfo.Id,
+                RetryCount = taskInfo.MaxRetryCount,
                 Status = 1,
+                TriggerCode = 0,
+                TriggerMessage = "",
+                TriggerTime = DateTime.Now,
                 ResultCode = 0,
                 ResultMessage = "",// StringUtils.SubString(resultDTO.Message, 500),
                 CreateTime = DateTime.Now,
@@ -234,16 +242,34 @@ namespace Aix.ScheduleTask
             return (int)newLogId;
         }
 
+        private Task UpdateTriggerCode(int logId, int triggerCode, string triggerMessage)
+        {
+            _taskExecutor.Execute(async (state) =>
+            {
+                AixScheduleTaskLog log = new AixScheduleTaskLog
+                {
+                    Id = logId,
+                    TriggerCode = triggerCode,
+                    TriggerMessage = StringUtils.SubString(triggerMessage, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
+                    ModifyTime = DateTime.Now
+                };
+                await _aixScheduleTaskLogRepository.UpdateAsync(log);
+            }, null);
+
+            return Task.CompletedTask;
+        }
+
         public Task SaveExecuteResult(ExecuteResultDTO resultDTO)
         {
             _taskExecutor.Execute(async (state) =>
             {
                 AixScheduleTaskLog log = new AixScheduleTaskLog
                 {
-                    Id = resultDTO.Id,
+                    Id = resultDTO.LogId,
                     Status = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
                     ResultCode = resultDTO.Code,
                     ResultMessage = StringUtils.SubString(resultDTO.Message, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
+                    ResultTime = DateTime.Now,
                     ModifyTime = DateTime.Now
                 };
                 await _aixScheduleTaskLogRepository.UpdateAsync(log);
@@ -346,12 +372,12 @@ namespace Aix.ScheduleTask
         /// 清除过期日志
         /// </summary>
         /// <returns></returns>
-        private  Task ScheduleDeleteExpireLog()
+        private Task ScheduleDeleteExpireLog()
         {
-            Task.Run(async() =>
+            Task.Run(async () =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(30));
-                var logExpireHour = _options.LogExpireHour > 0 ? _options.LogExpireHour : 168 ;
+                var logExpireHour = _options.LogExpireHour > 0 ? _options.LogExpireHour : 168;
                 while (true)
                 {
                     _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
@@ -369,7 +395,7 @@ namespace Aix.ScheduleTask
             });
 
             return Task.CompletedTask;
-            
+
         }
 
         private void WarnIfDataTooLarge(int count)

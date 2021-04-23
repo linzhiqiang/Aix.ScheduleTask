@@ -9,7 +9,9 @@ namespace Aix.ScheduleTask
         /// <summary>
         /// 定时任务logid
         /// </summary>
-        public int Id { get; set; }
+        public int LogId { get; set; }
+
+        public int TaskId { get; set; }
 
         /// <summary>
         /// 执行器 根据需要扩展
@@ -30,7 +32,7 @@ namespace Aix.ScheduleTask
         /// <summary>
         /// 定时任务logid
         /// </summary>
-        public int Id { get; set; }
+        public int LogId { get; set; }
 
         /// <summary>
         /// 状态码 

@@ -123,12 +123,17 @@
         <!-- Badly formed XML comment ignored for member "T:Aix.ScheduleTask.Model.AixScheduleTaskLog" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.Id" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ScheduleTaskId" -->
+        <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.RetryCount" -->
+        <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.TriggerCode" -->
+        <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.TriggerMessage" -->
+        <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.TriggerTime" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ResultCode" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ResultMessage" -->
+        <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ResultTime" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.Status" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.CreateTime" -->
         <!-- Badly formed XML comment ignored for member "P:Aix.ScheduleTask.Model.AixScheduleTaskLog.ModifyTime" -->
-        <member name="P:Aix.ScheduleTask.ScheduleTaskContext.Id">
+        <member name="P:Aix.ScheduleTask.ScheduleTaskContext.LogId">
             <summary>
             定时任务logid
             </summary>
@@ -148,7 +153,7 @@
             执行结果信息
             </summary>
         </member>
-        <member name="P:Aix.ScheduleTask.ExecuteResultDTO.Id">
+        <member name="P:Aix.ScheduleTask.ExecuteResultDTO.LogId">
             <summary>
             定时任务logid
             </summary>

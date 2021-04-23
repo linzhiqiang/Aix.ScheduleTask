@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="GB2312"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CTOXML>
-
 <DataModels>
-  <CTVER>43543231</CTVER>
+  <CTVER>43543234</CTVER>
   <TableCount>3</TableCount>
   <Count>1</Count>
 </DataModels>
 
+<DataModels_items/>
 
 <DataModels_items1>
   <ID>7</ID>
-  <Name>·Ö²¼Ê½ÈÎÎñ</Name>
+  <Name>åˆ†å¸ƒå¼ä»»åŠ¡</Name>
   <CreateDate>2020/6/24 12:45:36</CreateDate>
   <OrderNo>1</OrderNo>
   <ConfigStr>DrawerWidth=1500
@@ -31,311 +31,329 @@ GenFKIndexesSQL=0
 </ConfigStr>
 </DataModels_items1>
 
-
 <DataModels_items1_Tables>
   <Count>3</Count>
 </DataModels_items1_Tables>
 
+<DataModels_items1_Tables_items/>
 
 <DataModels_items1_Tables_items1>
   <ID>2</ID>
   <Name>aix_distribution_lock</Name>
-  <Caption>·Ö²¼Ê½Ëø</Caption>
+  <Caption>åˆ†å¸ƒå¼é”</Caption>
   <CreateDate>2020/6/8 13:41:26</CreateDate>
   <OrderNo>1</OrderNo>
   <GraphDesc>Left=135.00
 Top=28.00</GraphDesc>
 </DataModels_items1_Tables_items1>
 
-
 <DataModels_items1_Tables_items1_MetaFields>
   <Count>1</Count>
 </DataModels_items1_Tables_items1_MetaFields>
 
+<DataModels_items1_Tables_items1_MetaFields_items/>
 
 <DataModels_items1_Tables_items1_MetaFields_items1>
   <ID>1</ID>
   <Name>lock_name</Name>
-  <CreateDate>2020/6/8 13:41:26</CreateDate>
   <OrderNo>1</OrderNo>
-  <DisplayName>Ö÷¼ü</DisplayName>
+  <DisplayName>ä¸»é”®</DisplayName>
   <DataType>1</DataType>
   <KeyFieldType>1</KeyFieldType>
   <DataLength>50</DataLength>
 </DataModels_items1_Tables_items1_MetaFields_items1>
 
-
 <DataModels_items1_Tables_items2>
   <ID>9</ID>
   <Name>aix_schedule_task_info</Name>
-  <Caption>¶¨Ê±ÈÎÎñ</Caption>
+  <Caption>å®šæ—¶ä»»åŠ¡</Caption>
   <CreateDate>2020/6/9 12:34:27</CreateDate>
   <OrderNo>2</OrderNo>
   <GraphDesc>Left=358.00
 Top=29.00</GraphDesc>
 </DataModels_items1_Tables_items2>
 
-
 <DataModels_items1_Tables_items2_MetaFields>
   <Count>14</Count>
 </DataModels_items1_Tables_items2_MetaFields>
 
+<DataModels_items1_Tables_items2_MetaFields_items/>
 
 <DataModels_items1_Tables_items2_MetaFields_items1>
   <ID>1</ID>
   <Name>id</Name>
-  <CreateDate>2020/6/9 12:34:27</CreateDate>
   <OrderNo>1</OrderNo>
-  <DisplayName>Ö÷¼ü</DisplayName>
+  <DisplayName>ä¸»é”®</DisplayName>
   <DataType>2</DataType>
   <KeyFieldType>1</KeyFieldType>
   <DefaultValue>{auto_increment}</DefaultValue>
   <Nullable>1</Nullable>
 </DataModels_items1_Tables_items2_MetaFields_items1>
 
-
 <DataModels_items1_Tables_items2_MetaFields_items2>
   <ID>14</ID>
   <Name>task_group</Name>
-  <Memo>¸ù¾İĞèÒª½øĞĞÀ©Õ¹</Memo>
+  <Memo>æ ¹æ®éœ€è¦è¿›è¡Œæ‰©å±•</Memo>
   <CreateDate>2020/12/22 12:52:10</CreateDate>
   <OrderNo>2</OrderNo>
-  <DisplayName>ËùÊô×é</DisplayName>
+  <DisplayName>æ‰€å±ç»„</DisplayName>
   <DataType>1</DataType>
   <Nullable>1</Nullable>
   <DataLength>50</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items2>
 
-
 <DataModels_items1_Tables_items2_MetaFields_items3>
   <ID>2</ID>
   <Name>status</Name>
-  <Memo>0=½ûÓÃ 1=Æô¶¯</Memo>
-  <CreateDate>2020/6/9 12:34:27</CreateDate>
+  <Memo>0=ç¦ç”¨ 1=å¯åŠ¨</Memo>
   <OrderNo>3</OrderNo>
-  <DisplayName>×´Ì¬</DisplayName>
+  <DisplayName>çŠ¶æ€</DisplayName>
   <DataType>6</DataType>
   <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items3>
 
-
 <DataModels_items1_Tables_items2_MetaFields_items4>
   <ID>474</ID>
   <Name>task_name</Name>
-  <CreateDate>2020/6/9 12:36:11</CreateDate>
   <OrderNo>4</OrderNo>
-  <DisplayName>ÈÎÎñÃû³Æ</DisplayName>
+  <DisplayName>ä»»åŠ¡åç§°</DisplayName>
   <DataType>1</DataType>
   <DataLength>50</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items4>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items5>
   <ID>174</ID>
   <Name>task_desc</Name>
   <CreateDate>2020/6/9 13:21:35</CreateDate>
   <OrderNo>5</OrderNo>
-  <DisplayName>ÈÎÎñÃèÊö</DisplayName>
+  <DisplayName>ä»»åŠ¡æè¿°</DisplayName>
   <DataType>1</DataType>
   <Nullable>1</Nullable>
   <DataLength>200</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items5>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items6>
   <ID>121</ID>
   <Name>cron</Name>
   <CreateDate>2020/6/9 13:13:49</CreateDate>
   <OrderNo>6</OrderNo>
-  <DisplayName>¶¨Ê±±í´ïÊ½</DisplayName>
+  <DisplayName>å®šæ—¶è¡¨è¾¾å¼</DisplayName>
   <DataType>1</DataType>
   <DataLength>50</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items6>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items7>
   <ID>15</ID>
   <Name>task_content</Name>
   <CreateDate>2021/1/6 13:23:26</CreateDate>
   <OrderNo>7</OrderNo>
-  <DisplayName>ÄÚÈİ</DisplayName>
+  <DisplayName>å†…å®¹</DisplayName>
   <DataType>1</DataType>
   <DataLength>500</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items7>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items8>
   <ID>161</ID>
   <Name>last_execute_time</Name>
   <CreateDate>2020/6/9 13:20:19</CreateDate>
   <OrderNo>8</OrderNo>
-  <DisplayName>ÉÏ´ÎÖ´ĞĞÊ±¼ä</DisplayName>
+  <DisplayName>ä¸Šæ¬¡æ‰§è¡Œæ—¶é—´</DisplayName>
   <DataType>2</DataType>
   <DataTypeName>BIGINT</DataTypeName>
   <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items8>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items9>
   <ID>106</ID>
   <Name>next_execute_time</Name>
   <CreateDate>2020/6/9 13:12:29</CreateDate>
   <OrderNo>9</OrderNo>
-  <DisplayName>ÏÂ´ÎÖ´ĞĞÊ±¼ä</DisplayName>
+  <DisplayName>ä¸‹æ¬¡æ‰§è¡Œæ—¶é—´</DisplayName>
   <DataType>2</DataType>
   <DataTypeName>BIGINT</DataTypeName>
   <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items9>
 
-
 <DataModels_items1_Tables_items2_MetaFields_items10>
   <ID>272</ID>
   <Name>max_retry_count</Name>
-  <Memo>0=²»ÖØÊÔ</Memo>
+  <Memo>0=ä¸é‡è¯•</Memo>
   <CreateDate>2020/6/9 13:27:58</CreateDate>
   <OrderNo>10</OrderNo>
-  <DisplayName>×î´óÖØÊÔ´ÎÊı</DisplayName>
+  <DisplayName>æœ€å¤§é‡è¯•æ¬¡æ•°</DisplayName>
   <DataType>2</DataType>
   <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items10>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items11>
   <ID>148</ID>
   <Name>creator_id</Name>
   <CreateDate>2020/6/9 13:18:44</CreateDate>
   <OrderNo>11</OrderNo>
-  <DisplayName>´´½¨ÈË±àºÅ</DisplayName>
+  <DisplayName>åˆ›å»ºäººç¼–å·</DisplayName>
   <DataType>1</DataType>
   <DataLength>50</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items11>
 
-
 <DataModels_items1_Tables_items2_MetaFields_items12>
   <ID>6</ID>
   <Name>create_time</Name>
-  <CreateDate>2020/6/9 12:34:27</CreateDate>
   <OrderNo>12</OrderNo>
-  <DisplayName>´´½¨ÈÕÆÚ</DisplayName>
+  <DisplayName>åˆ›å»ºæ—¥æœŸ</DisplayName>
   <DataType>4</DataType>
   <DefaultValue>CURRENT_TIMESTAMP</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items12>
-
 
 <DataModels_items1_Tables_items2_MetaFields_items13>
   <ID>149</ID>
   <Name>modifier_id</Name>
   <CreateDate>2020/6/9 13:18:44</CreateDate>
   <OrderNo>13</OrderNo>
-  <DisplayName>ĞŞ¸ÄÈË±àºÅ</DisplayName>
+  <DisplayName>ä¿®æ”¹äººç¼–å·</DisplayName>
   <DataType>1</DataType>
   <DataLength>50</DataLength>
 </DataModels_items1_Tables_items2_MetaFields_items13>
 
-
 <DataModels_items1_Tables_items2_MetaFields_items14>
   <ID>8</ID>
   <Name>modify_time</Name>
-  <CreateDate>2020/6/9 12:34:27</CreateDate>
   <OrderNo>14</OrderNo>
-  <DisplayName>ĞŞ¸ÄÈÕÆÚ</DisplayName>
+  <DisplayName>ä¿®æ”¹æ—¥æœŸ</DisplayName>
   <DataType>4</DataType>
   <DefaultValue>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items14>
 
-
 <DataModels_items1_Tables_items3>
   <ID>10</ID>
   <Name>aix_schedule_task_log</Name>
-  <Caption>¶¨Ê±ÈÎÎñlog</Caption>
+  <Caption>å®šæ—¶ä»»åŠ¡log</Caption>
   <CreateDate>2020/6/9 13:38:45</CreateDate>
   <OrderNo>3</OrderNo>
   <GraphDesc>Left=667.00
 Top=23.00</GraphDesc>
 </DataModels_items1_Tables_items3>
 
-
 <DataModels_items1_Tables_items3_MetaFields>
-  <Count>7</Count>
+  <Count>12</Count>
 </DataModels_items1_Tables_items3_MetaFields>
 
+<DataModels_items1_Tables_items3_MetaFields_items/>
 
 <DataModels_items1_Tables_items3_MetaFields_items1>
   <ID>1</ID>
   <Name>id</Name>
-  <CreateDate>2020/6/9 13:38:45</CreateDate>
   <OrderNo>1</OrderNo>
-  <DisplayName>Ö÷¼ü</DisplayName>
+  <DisplayName>ä¸»é”®</DisplayName>
   <DataType>2</DataType>
   <KeyFieldType>1</KeyFieldType>
   <DefaultValue>{auto_increment}</DefaultValue>
 </DataModels_items1_Tables_items3_MetaFields_items1>
 
-
 <DataModels_items1_Tables_items3_MetaFields_items2>
   <ID>337</ID>
   <Name>schedule_task_id</Name>
-  <CreateDate>2020/6/9 13:40:26</CreateDate>
   <OrderNo>2</OrderNo>
-  <DisplayName>¶¨Ê±ÈÎÎñid</DisplayName>
+  <DisplayName>å®šæ—¶ä»»åŠ¡id</DisplayName>
   <DataType>2</DataType>
 </DataModels_items1_Tables_items3_MetaFields_items2>
 
-
 <DataModels_items1_Tables_items3_MetaFields_items3>
-  <ID>342</ID>
-  <Name>result_code</Name>
-  <CreateDate>2020/6/9 13:42:00</CreateDate>
+  <ID>22</ID>
+  <Name>retry_count</Name>
+  <CreateDate>2021/4/23 10:03:01</CreateDate>
   <OrderNo>3</OrderNo>
-  <DisplayName>½á¹ûcode</DisplayName>
+  <DisplayName>é‡è¯•æ¬¡æ•°</DisplayName>
   <DataType>2</DataType>
+  <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items3_MetaFields_items3>
 
-
 <DataModels_items1_Tables_items3_MetaFields_items4>
-  <ID>343</ID>
-  <Name>result_message</Name>
-  <CreateDate>2020/6/9 13:42:23</CreateDate>
+  <ID>55</ID>
+  <Name>trigger_code</Name>
+  <CreateDate>2021/4/23 10:04:22</CreateDate>
   <OrderNo>4</OrderNo>
-  <DisplayName>½á¹ûĞÅÏ¢</DisplayName>
+  <DisplayName>è°ƒåº¦code</DisplayName>
+  <DataType>2</DataType>
+  <DefaultValue>0</DefaultValue>
+</DataModels_items1_Tables_items3_MetaFields_items4>
+
+<DataModels_items1_Tables_items3_MetaFields_items5>
+  <ID>56</ID>
+  <Name>trigger_message</Name>
+  <CreateDate>2021/4/23 10:04:22</CreateDate>
+  <OrderNo>5</OrderNo>
+  <DisplayName>è°ƒåº¦ä¿¡æ¯</DisplayName>
   <DataType>1</DataType>
   <Nullable>1</Nullable>
   <DataLength>500</DataLength>
-</DataModels_items1_Tables_items3_MetaFields_items4>
-
-
-<DataModels_items1_Tables_items3_MetaFields_items5>
-  <ID>7</ID>
-  <Name>status</Name>
-  <Memo>0=³õÊ¼»¯ 1=Ö´ĞĞÖĞ 2=Ö´ĞĞ³É¹¦ 9=Ö´ĞĞÊ§°Ü</Memo>
-  <CreateDate>2021/3/12 14:37:14</CreateDate>
-  <OrderNo>5</OrderNo>
-  <DisplayName>×´Ì¬</DisplayName>
-  <DataType>2</DataType>
-  <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items3_MetaFields_items5>
 
-
 <DataModels_items1_Tables_items3_MetaFields_items6>
-  <ID>6</ID>
-  <Name>create_time</Name>
-  <CreateDate>2020/6/9 13:38:45</CreateDate>
+  <ID>77</ID>
+  <Name>trigger_time</Name>
+  <CreateDate>2021/4/23 10:05:23</CreateDate>
   <OrderNo>6</OrderNo>
-  <DisplayName>´´½¨ÈÕÆÚ</DisplayName>
+  <DisplayName>è°ƒåº¦æ—¶é—´</DisplayName>
   <DataType>4</DataType>
-  <DefaultValue>CURRENT_TIMESTAMP</DefaultValue>
+  <Nullable>1</Nullable>
 </DataModels_items1_Tables_items3_MetaFields_items6>
 
-
 <DataModels_items1_Tables_items3_MetaFields_items7>
+  <ID>342</ID>
+  <Name>result_code</Name>
+  <OrderNo>7</OrderNo>
+  <DisplayName>ç»“æœcode</DisplayName>
+  <DataType>2</DataType>
+</DataModels_items1_Tables_items3_MetaFields_items7>
+
+<DataModels_items1_Tables_items3_MetaFields_items8>
+  <ID>343</ID>
+  <Name>result_message</Name>
+  <OrderNo>8</OrderNo>
+  <DisplayName>ç»“æœä¿¡æ¯</DisplayName>
+  <DataType>1</DataType>
+  <Nullable>1</Nullable>
+  <DataLength>500</DataLength>
+</DataModels_items1_Tables_items3_MetaFields_items8>
+
+<DataModels_items1_Tables_items3_MetaFields_items9>
+  <ID>78</ID>
+  <Name>result_time</Name>
+  <CreateDate>2021/4/23 10:05:55</CreateDate>
+  <OrderNo>9</OrderNo>
+  <DisplayName>ç»“æœæ—¶é—´</DisplayName>
+  <DataType>4</DataType>
+  <Nullable>1</Nullable>
+</DataModels_items1_Tables_items3_MetaFields_items9>
+
+<DataModels_items1_Tables_items3_MetaFields_items10>
+  <ID>7</ID>
+  <Name>status</Name>
+  <Memo>0=åˆå§‹åŒ– 1=æ‰§è¡Œä¸­ 2=æ‰§è¡ŒæˆåŠŸ 9=æ‰§è¡Œå¤±è´¥</Memo>
+  <CreateDate>2021/3/12 14:37:14</CreateDate>
+  <OrderNo>10</OrderNo>
+  <DisplayName>çŠ¶æ€</DisplayName>
+  <DataType>2</DataType>
+  <DefaultValue>0</DefaultValue>
+</DataModels_items1_Tables_items3_MetaFields_items10>
+
+<DataModels_items1_Tables_items3_MetaFields_items11>
+  <ID>6</ID>
+  <Name>create_time</Name>
+  <OrderNo>11</OrderNo>
+  <DisplayName>åˆ›å»ºæ—¥æœŸ</DisplayName>
+  <DataType>4</DataType>
+  <DefaultValue>CURRENT_TIMESTAMP</DefaultValue>
+</DataModels_items1_Tables_items3_MetaFields_items11>
+
+<DataModels_items1_Tables_items3_MetaFields_items12>
   <ID>8</ID>
   <Name>modify_time</Name>
-  <CreateDate>2020/6/9 13:38:45</CreateDate>
-  <OrderNo>7</OrderNo>
-  <DisplayName>ĞŞ¸ÄÈÕÆÚ</DisplayName>
+  <OrderNo>12</OrderNo>
+  <DisplayName>ä¿®æ”¹æ—¥æœŸ</DisplayName>
   <DataType>4</DataType>
   <DefaultValue>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</DefaultValue>
-</DataModels_items1_Tables_items3_MetaFields_items7>
+</DataModels_items1_Tables_items3_MetaFields_items12>
 
 
 </CTOXML>
