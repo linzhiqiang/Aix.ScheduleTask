@@ -1,6 +1,6 @@
 ﻿/*
 该文件为自动生成，不要修改。
-生成时间：2021-04-29 13:49:40。
+生成时间：2021-04-29 16:02:55。
 */
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace Aix.ScheduleTask.Model
     {
         private int _id; 
         private string _task_group; 
-        private byte _status; 
+        private sbyte _status; 
         private string _task_name; 
         private string _task_desc; 
         private string _cron; 
@@ -55,7 +55,7 @@ namespace Aix.ScheduleTask.Model
         /// 状态 0=禁用 1=启动  tinyint(1)
         /// <summary>
         [Column("status",IsNullable=false,DefaultValue="0")]
-        public byte Status
+        public sbyte Status
         {
             get { return _status; }
             set { _status = value; OnPropertyChanged("status"); }

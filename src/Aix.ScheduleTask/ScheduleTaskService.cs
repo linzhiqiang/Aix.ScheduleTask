@@ -206,19 +206,19 @@ namespace Aix.ScheduleTask
                 {
                     logId = await SaveLog(innerTaskInfo);
                     await OnHandleMessage(new ScheduleTaskContext { LogId = logId, TaskId = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
-                    await UpdateTriggerCode(logId, 2, "success");
+                    await UpdateTriggerCode(logId, OPStatus.Success, "success");
                 }
                 catch (OperationCanceledException ex)
                 {
                     _logger.LogError(ex, "Aix.ScheduleTask任务取消");
-                    await UpdateTriggerCode(logId, 9, ex.Message);
+                    await UpdateTriggerCode(logId, OPStatus.Fail, ex.Message);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
                     //这里可以实现重试逻辑
 
-                    await UpdateTriggerCode(logId, 9, ex.Message);
+                    await UpdateTriggerCode(logId, OPStatus.Fail, ex.Message);
                 }
             }, taskInfo);
 
@@ -231,11 +231,12 @@ namespace Aix.ScheduleTask
             {
                 ScheduleTaskId = taskInfo.Id,
                 RetryCount = taskInfo.MaxRetryCount,
-                TriggerCode = 0,
+                TriggerCode = (int)OPStatus.Init,
                 TriggerMessage = "",
                 TriggerTime = DateTime.Now,
-                ResultCode = 0,
+                ResultCode = (int)OPStatus.Init,
                 ResultMessage = "",// StringUtils.SubString(resultDTO.Message, 500),
+                AlarmStatus= (sbyte)AlarmStatus.Init,
                 CreateTime = DateTime.Now,
                 ModifyTime = DateTime.Now
             };
@@ -243,14 +244,14 @@ namespace Aix.ScheduleTask
             return (int)newLogId;
         }
 
-        private Task UpdateTriggerCode(int logId, int triggerCode, string triggerMessage)
+        private Task UpdateTriggerCode(int logId, OPStatus triggerCode, string triggerMessage)
         {
             _taskExecutor.Execute(async (state) =>
             {
                 AixScheduleTaskLog log = new AixScheduleTaskLog
                 {
                     Id = logId,
-                    TriggerCode = triggerCode,
+                    TriggerCode = (int)triggerCode,
                     TriggerMessage = StringUtils.SubString(triggerMessage, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
                     ModifyTime = DateTime.Now
                 };
@@ -267,8 +268,8 @@ namespace Aix.ScheduleTask
                 AixScheduleTaskLog log = new AixScheduleTaskLog
                 {
                     Id = resultDTO.LogId,
-                    ResultCode = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
-                    ResultMessage = StringUtils.SubString(resultDTO.Message, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
+                    ResultCode = resultDTO.Code == 0 ? (int)OPStatus.Success : (int)OPStatus.Fail, //状态 0=初始化 /*1=执行中*/ 2=执行成功 9=执行失败  
+                    ResultMessage = StringUtils.SubString(resultDTO.Code+"-"+resultDTO.Message, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
                     ResultTime = DateTime.Now,
                     ModifyTime = DateTime.Now
                 };
