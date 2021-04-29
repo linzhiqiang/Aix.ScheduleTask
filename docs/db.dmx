@@ -234,7 +234,7 @@ Top=23.00</GraphDesc>
 </DataModels_items1_Tables_items3>
 
 <DataModels_items1_Tables_items3_MetaFields>
-  <Count>12</Count>
+  <Count>11</Count>
 </DataModels_items1_Tables_items3_MetaFields>
 
 <DataModels_items1_Tables_items3_MetaFields_items/>
@@ -327,33 +327,22 @@ Top=23.00</GraphDesc>
 </DataModels_items1_Tables_items3_MetaFields_items9>
 
 <DataModels_items1_Tables_items3_MetaFields_items10>
-  <ID>7</ID>
-  <Name>status</Name>
-  <Memo>0=初始化 1=执行中 2=执行成功 9=执行失败</Memo>
-  <CreateDate>2021/3/12 14:37:14</CreateDate>
-  <OrderNo>10</OrderNo>
-  <DisplayName>状态</DisplayName>
-  <DataType>2</DataType>
-  <DefaultValue>0</DefaultValue>
-</DataModels_items1_Tables_items3_MetaFields_items10>
-
-<DataModels_items1_Tables_items3_MetaFields_items11>
   <ID>6</ID>
   <Name>create_time</Name>
-  <OrderNo>11</OrderNo>
+  <OrderNo>10</OrderNo>
   <DisplayName>创建日期</DisplayName>
   <DataType>4</DataType>
   <DefaultValue>CURRENT_TIMESTAMP</DefaultValue>
-</DataModels_items1_Tables_items3_MetaFields_items11>
+</DataModels_items1_Tables_items3_MetaFields_items10>
 
-<DataModels_items1_Tables_items3_MetaFields_items12>
+<DataModels_items1_Tables_items3_MetaFields_items11>
   <ID>8</ID>
   <Name>modify_time</Name>
-  <OrderNo>12</OrderNo>
+  <OrderNo>11</OrderNo>
   <DisplayName>修改日期</DisplayName>
   <DataType>4</DataType>
   <DefaultValue>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</DefaultValue>
-</DataModels_items1_Tables_items3_MetaFields_items12>
+</DataModels_items1_Tables_items3_MetaFields_items11>
 
 
 </CTOXML>

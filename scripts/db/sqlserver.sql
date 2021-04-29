@@ -53,9 +53,13 @@ create table  aix_schedule_task_log
 (
        id                INT identity(1, 1) not null 	/*主键*/,
        schedule_task_id  INT not null 	/*定时任务id*/,
+       retry_count       INT default 0 not null 	/*重试次数*/,
+       trigger_code      INT default 0 not null 	/*调度code*/,
+       trigger_message   VARCHAR(500) 	/*调度信息*/,
+       trigger_time      DATETIME 	/*调度时间*/,
        result_code       INT not null 	/*结果code*/,
        result_message    VARCHAR(500) 	/*结果信息*/,
-       status            INT default 0 not null 	/*状态 0=初始化 1=执行中 2=执行成功 9=执行失败*/,
+       result_time       DATETIME 	/*结果时间*/,
        create_time       DATETIME default getdate() not null 	/*创建日期*/,
        modify_time       DATETIME default getdate() not null 	/*修改日期*/
 );
@@ -64,8 +68,12 @@ alter  table aix_schedule_task_log
 EXEC sp_addextendedproperty 'MS_Description', '定时任务log', 'user', dbo, 'table', aix_schedule_task_log, NULL, NULL;
 EXEC sp_addextendedproperty 'MS_Description', '主键', 'user', dbo, 'table', aix_schedule_task_log, 'column', id;
 EXEC sp_addextendedproperty 'MS_Description', '定时任务id', 'user', dbo, 'table', aix_schedule_task_log, 'column', schedule_task_id;
+EXEC sp_addextendedproperty 'MS_Description', '重试次数', 'user', dbo, 'table', aix_schedule_task_log, 'column', retry_count;
+EXEC sp_addextendedproperty 'MS_Description', '调度code', 'user', dbo, 'table', aix_schedule_task_log, 'column', trigger_code;
+EXEC sp_addextendedproperty 'MS_Description', '调度信息', 'user', dbo, 'table', aix_schedule_task_log, 'column', trigger_message;
+EXEC sp_addextendedproperty 'MS_Description', '调度时间', 'user', dbo, 'table', aix_schedule_task_log, 'column', trigger_time;
 EXEC sp_addextendedproperty 'MS_Description', '结果code', 'user', dbo, 'table', aix_schedule_task_log, 'column', result_code;
 EXEC sp_addextendedproperty 'MS_Description', '结果信息', 'user', dbo, 'table', aix_schedule_task_log, 'column', result_message;
-EXEC sp_addextendedproperty 'MS_Description', '状态 0=初始化 1=执行中 2=执行成功 9=执行失败', 'user', dbo, 'table', aix_schedule_task_log, 'column', status;
+EXEC sp_addextendedproperty 'MS_Description', '结果时间', 'user', dbo, 'table', aix_schedule_task_log, 'column', result_time;
 EXEC sp_addextendedproperty 'MS_Description', '创建日期', 'user', dbo, 'table', aix_schedule_task_log, 'column', create_time;
 EXEC sp_addextendedproperty 'MS_Description', '修改日期', 'user', dbo, 'table', aix_schedule_task_log, 'column', modify_time;

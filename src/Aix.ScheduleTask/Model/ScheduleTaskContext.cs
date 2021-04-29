@@ -35,7 +35,7 @@ namespace Aix.ScheduleTask
         public int LogId { get; set; }
 
         /// <summary>
-        /// 状态码 
+        /// 状态码  0=初始化  2=执行成功 9=执行失败  
         /// </summary>
         public int Code { get; set; }
 

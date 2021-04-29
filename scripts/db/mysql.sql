@@ -27,13 +27,17 @@ create table  `aix_schedule_task_info`
        `modify_time`     DATETIME default now() not null comment '修改日期'
 ) comment '定时任务';
 
-create table  `aix_schedule_task_log`
+create table  aix_schedule_task_log
 (
-       `id`              INT auto_increment primary key not null comment '主键',
-       `schedule_task_id` INT not null comment '定时任务id',
-       `result_code`     INT not null comment '结果code',
-       `result_message`  VARCHAR(500) comment '结果信息',
-       `status`          INT default 0 not null comment '状态 0=初始化 1=执行中 2=执行成功 9=执行失败',
-       `create_time`     DATETIME default now() not null comment '创建日期',
-       `modify_time`     DATETIME default now() not null comment '修改日期'
+       id                INT primary key auto_increment not null comment '主键',
+       schedule_task_id  INT not null comment '定时任务id',
+       retry_count       INT default 0 not null comment '重试次数',
+       trigger_code      INT default 0 not null comment '调度code',
+       trigger_message   VARCHAR(500) comment '调度信息',
+       trigger_time      DATETIME comment '调度时间',
+       result_code       INT not null comment '结果code',
+       result_message    VARCHAR(500) comment '结果信息',
+       result_time       DATETIME comment '结果时间',
+       create_time       TIMESTAMP default current_timestamp not null comment '创建日期',
+       modify_time       TIMESTAMP default current_timestamp not null comment '修改日期'
 ) comment '定时任务log';

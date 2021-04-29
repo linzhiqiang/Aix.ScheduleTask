@@ -206,17 +206,19 @@ namespace Aix.ScheduleTask
                 {
                     logId = await SaveLog(innerTaskInfo);
                     await OnHandleMessage(new ScheduleTaskContext { LogId = logId, TaskId = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
+                    await UpdateTriggerCode(logId, 2, "success");
                 }
                 catch (OperationCanceledException ex)
                 {
                     _logger.LogError(ex, "Aix.ScheduleTask任务取消");
+                    await UpdateTriggerCode(logId, 9, ex.Message);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
                     //这里可以实现重试逻辑
 
-                    await UpdateTriggerCode(logId, -1, ex.Message);
+                    await UpdateTriggerCode(logId, 9, ex.Message);
                 }
             }, taskInfo);
 
@@ -229,7 +231,6 @@ namespace Aix.ScheduleTask
             {
                 ScheduleTaskId = taskInfo.Id,
                 RetryCount = taskInfo.MaxRetryCount,
-                Status = 1,
                 TriggerCode = 0,
                 TriggerMessage = "",
                 TriggerTime = DateTime.Now,
@@ -266,8 +267,7 @@ namespace Aix.ScheduleTask
                 AixScheduleTaskLog log = new AixScheduleTaskLog
                 {
                     Id = resultDTO.LogId,
-                    Status = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
-                    ResultCode = resultDTO.Code,
+                    ResultCode = resultDTO.Code == 0 ? 2 : 9, //状态 0=初始化 1=执行中 2=执行成功 9=执行失败  
                     ResultMessage = StringUtils.SubString(resultDTO.Message, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
                     ResultTime = DateTime.Now,
                     ModifyTime = DateTime.Now
@@ -362,9 +362,6 @@ namespace Aix.ScheduleTask
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Aix.ScheduleTask定时任务初始化出错");
-                throw;
-
-
             }
         }
 
@@ -390,7 +387,7 @@ namespace Aix.ScheduleTask
                     {
                         _logger.LogError(ex, "清除过期日志异常");
                     }
-                    await TaskEx.DelayNoException(TimeSpan.FromHours(1), _scheduleTaskLifetime.ScheduleTaskStopping);
+                    await TaskEx.DelayNoException(TimeSpan.FromHours(2), _scheduleTaskLifetime.ScheduleTaskStopping);
                 }
             });
 
