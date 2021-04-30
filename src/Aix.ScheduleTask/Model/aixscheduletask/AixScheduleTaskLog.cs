@@ -1,6 +1,6 @@
 ﻿/*
 该文件为自动生成，不要修改。
-生成时间：2021-04-30 13:24:32。
+生成时间：2021-04-30 21:53:31。
 */
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Aix.ScheduleTask.Model
 {
     /// <summary>
     /// 定时任务log
-    /// <summary>
+    /// </summary>
     [Table("aix_schedule_task_log")]
     public partial class AixScheduleTaskLog : BaseEntity
     {
@@ -31,7 +31,7 @@ namespace Aix.ScheduleTask.Model
 
         /// <summary>
         /// 主键  int(4)
-        /// <summary>
+        /// </summary>
         [Column("id",IsNullable=false)]
         [PrimaryKey]
         [Identity]
@@ -42,7 +42,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 定时任务id  int(4)
-        /// <summary>
+        /// </summary>
         [Column("schedule_task_id",IsNullable=false)]
         public int ScheduleTaskId
         {
@@ -51,7 +51,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 重试次数  int(4)
-        /// <summary>
+        /// </summary>
         [Column("retry_count",IsNullable=false,DefaultValue="0")]
         public int RetryCount
         {
@@ -59,8 +59,8 @@ namespace Aix.ScheduleTask.Model
             set { _retry_count = value; OnPropertyChanged("retry_count"); }
         }
         /// <summary>
-        /// 调度code  int(4)
-        /// <summary>
+        /// 调度code 0=初始化  2=执行成功 9=执行失败    int(4)
+        /// </summary>
         [Column("trigger_code",IsNullable=false,DefaultValue="0")]
         public int TriggerCode
         {
@@ -69,7 +69,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 调度信息  varchar(500)
-        /// <summary>
+        /// </summary>
         [Column("trigger_message",IsNullable=true)]
         public string TriggerMessage
         {
@@ -78,7 +78,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 调度时间  datetime(8)
-        /// <summary>
+        /// </summary>
         [Column("trigger_time",IsNullable=true)]
         public DateTime? TriggerTime
         {
@@ -86,8 +86,8 @@ namespace Aix.ScheduleTask.Model
             set { _trigger_time = value; OnPropertyChanged("trigger_time"); }
         }
         /// <summary>
-        /// 结果code  int(4)
-        /// <summary>
+        /// 结果code 0=初始化  2=执行成功 9=执行失败    int(4)
+        /// </summary>
         [Column("result_code",IsNullable=false)]
         public int ResultCode
         {
@@ -96,7 +96,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 结果信息  varchar(500)
-        /// <summary>
+        /// </summary>
         [Column("result_message",IsNullable=true)]
         public string ResultMessage
         {
@@ -105,7 +105,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 结果时间  datetime(8)
-        /// <summary>
+        /// </summary>
         [Column("result_time",IsNullable=true)]
         public DateTime? ResultTime
         {
@@ -114,7 +114,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 告警状态 告警状态：0-默认、-1-锁定状态、1-无需告警、2-告警成功、9-告警失败  int(4)
-        /// <summary>
+        /// </summary>
         [Column("alarm_status",IsNullable=false,DefaultValue="0")]
         public int AlarmStatus
         {
@@ -123,7 +123,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 创建日期  datetime(8)
-        /// <summary>
+        /// </summary>
         [Column("create_time",IsNullable=false,DefaultValue="getdate()")]
         public DateTime CreateTime
         {
@@ -132,7 +132,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 修改日期  datetime(8)
-        /// <summary>
+        /// </summary>
         [Column("modify_time",IsNullable=false,DefaultValue="getdate()")]
         public DateTime ModifyTime
         {

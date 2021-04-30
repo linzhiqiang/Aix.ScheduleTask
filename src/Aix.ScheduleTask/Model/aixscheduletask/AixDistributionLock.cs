@@ -1,6 +1,6 @@
 ﻿/*
 该文件为自动生成，不要修改。
-生成时间：2021-04-30 13:24:32。
+生成时间：2021-04-30 21:53:31。
 */
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Aix.ScheduleTask.Model
 {
     /// <summary>
     /// 分布式锁
-    /// <summary>
+    /// </summary>
     [Table("aix_distribution_lock")]
     public partial class AixDistributionLock : BaseEntity
     {
@@ -20,7 +20,7 @@ namespace Aix.ScheduleTask.Model
 
         /// <summary>
         /// 主键  varchar(50)
-        /// <summary>
+        /// </summary>
         [Column("lock_name",IsNullable=false)]
         [PrimaryKey]
         public string LockName

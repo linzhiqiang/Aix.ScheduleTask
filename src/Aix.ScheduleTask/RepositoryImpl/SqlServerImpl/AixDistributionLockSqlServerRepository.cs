@@ -7,9 +7,18 @@ using System.Threading.Tasks;
 
 namespace Aix.ScheduleTask.RepositoryImpl
 {
+/// <summary>
+/// 
+/// </summary>
    public class AixDistributionLockSqlServerRepository : BaseSqlServerRepository, IAixDistributionLockRepository
     {
         readonly string AllColumns = " lock_name ";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <param name="options"></param>
         public AixDistributionLockSqlServerRepository(IServiceProvider provider, AixScheduleTaskOptions options) : base(provider, options.Master)
         {
 

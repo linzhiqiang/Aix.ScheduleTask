@@ -1,6 +1,6 @@
 ﻿/*
 该文件为自动生成，不要修改。
-生成时间：2021-04-30 13:24:32。
+生成时间：2021-04-30 21:53:31。
 */
 using System;
 using System.Collections.Generic;
@@ -12,13 +12,13 @@ namespace Aix.ScheduleTask.Model
 {
     /// <summary>
     /// 定时任务
-    /// <summary>
+    /// </summary>
     [Table("aix_schedule_task_info")]
     public partial class AixScheduleTaskInfo : BaseEntity
     {
         private int _id; 
         private string _task_group; 
-        private int _status; 
+        private int _task_status; 
         private string _task_name; 
         private string _task_desc; 
         private string _cron; 
@@ -33,7 +33,7 @@ namespace Aix.ScheduleTask.Model
 
         /// <summary>
         /// 主键  int(4)
-        /// <summary>
+        /// </summary>
         [Column("id",IsNullable=false)]
         [PrimaryKey]
         [Identity]
@@ -44,7 +44,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 所属组 根据需要进行扩展  varchar(50)
-        /// <summary>
+        /// </summary>
         [Column("task_group",IsNullable=true)]
         public string TaskGroup
         {
@@ -53,16 +53,16 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 状态 0=禁用 1=启动  int(4)
-        /// <summary>
-        [Column("status",IsNullable=false,DefaultValue="0")]
-        public int Status
+        /// </summary>
+        [Column("task_status",IsNullable=false,DefaultValue="0")]
+        public int TaskStatus
         {
-            get { return _status; }
-            set { _status = value; OnPropertyChanged("status"); }
+            get { return _task_status; }
+            set { _task_status = value; OnPropertyChanged("task_status"); }
         }
         /// <summary>
         /// 任务名称  varchar(50)
-        /// <summary>
+        /// </summary>
         [Column("task_name",IsNullable=false)]
         public string TaskName
         {
@@ -71,7 +71,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 任务描述  varchar(200)
-        /// <summary>
+        /// </summary>
         [Column("task_desc",IsNullable=true)]
         public string TaskDesc
         {
@@ -80,7 +80,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 定时表达式  varchar(50)
-        /// <summary>
+        /// </summary>
         [Column("cron",IsNullable=false)]
         public string Cron
         {
@@ -89,7 +89,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 内容  varchar(500)
-        /// <summary>
+        /// </summary>
         [Column("task_content",IsNullable=false)]
         public string TaskContent
         {
@@ -98,7 +98,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 上次执行时间  bigint(8)
-        /// <summary>
+        /// </summary>
         [Column("last_execute_time",IsNullable=false,DefaultValue="0")]
         public long LastExecuteTime
         {
@@ -107,7 +107,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 下次执行时间  bigint(8)
-        /// <summary>
+        /// </summary>
         [Column("next_execute_time",IsNullable=false,DefaultValue="0")]
         public long NextExecuteTime
         {
@@ -116,7 +116,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 最大重试次数 0=不重试  int(4)
-        /// <summary>
+        /// </summary>
         [Column("max_retry_count",IsNullable=false,DefaultValue="0")]
         public int MaxRetryCount
         {
@@ -125,7 +125,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 创建人编号  varchar(50)
-        /// <summary>
+        /// </summary>
         [Column("creator_id",IsNullable=false)]
         public string CreatorId
         {
@@ -134,7 +134,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 创建日期  datetime(8)
-        /// <summary>
+        /// </summary>
         [Column("create_time",IsNullable=false,DefaultValue="getdate()")]
         public DateTime CreateTime
         {
@@ -143,7 +143,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 修改人编号  varchar(50)
-        /// <summary>
+        /// </summary>
         [Column("modifier_id",IsNullable=false)]
         public string ModifierId
         {
@@ -152,7 +152,7 @@ namespace Aix.ScheduleTask.Model
         }
         /// <summary>
         /// 修改日期  datetime(8)
-        /// <summary>
+        /// </summary>
         [Column("modify_time",IsNullable=false,DefaultValue="getdate()")]
         public DateTime ModifyTime
         {
