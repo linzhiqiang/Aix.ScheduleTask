@@ -99,6 +99,33 @@
             告警失败
             </summary>
         </member>
+        <member name="T:Aix.ScheduleTask.Executors.ErrorTaskExecutor">
+            <summary>
+            失败的任务 进行重试处理
+            </summary>
+        </member>
+        <member name="M:Aix.ScheduleTask.Executors.ErrorTaskExecutor.Start">
+            <summary>
+            定时处理 执行错误的任务，进行重试
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Aix.ScheduleTask.Executors.ExpireLogExecutor">
+            <summary>
+            清除过期日志
+            </summary>
+        </member>
+        <member name="M:Aix.ScheduleTask.Executors.ExpireLogExecutor.Start">
+            <summary>
+            清除过期日志
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Aix.ScheduleTask.Executors.ScheduleTaskExecutor">
+            <summary>
+            触发任务 进入任务队列等待调度
+            </summary>
+        </member>
         <member name="T:Aix.ScheduleTask.Foundation.IScheduleTaskDistributedLock">
             <summary>
             分布式锁
@@ -133,6 +160,13 @@
             </summary>
             <param name="millisecondsDelay"></param>
             <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.ScheduleTask.CrontabHelper.TimeStampToDateTime(System.Int64)">
+            <summary>
+            时间戳转时间
+            </summary>
+            <param name="timestamp"></param>
             <returns></returns>
         </member>
         <member name="T:Aix.ScheduleTask.IScheduleTaskService">
@@ -299,29 +333,36 @@
             定时任务执行器  不建议间隔10秒以下的的定时任务
             </summary>
         </member>
+        <member name="M:Aix.ScheduleTask.ScheduleTaskService.Start">
+            <summary>
+            开始
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Aix.ScheduleTask.ScheduleTaskService.DistributionLockWrap">
             <summary>
             根据是否集群环境是否增加分布式锁
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Aix.ScheduleTask.ScheduleTaskService.TimeStampToDateTime(System.Int64)">
+        <member name="M:Aix.ScheduleTask.ScheduleTaskService.SaveExecuteResult(Aix.ScheduleTask.ExecuteResultDTO)">
             <summary>
-            时间戳转时间
+             保存执行结果
             </summary>
-            <param name="timestamp"></param>
+            <param name="resultDTO"></param>
             <returns></returns>
         </member>
-        <member name="M:Aix.ScheduleTask.ScheduleTaskService.ScheduleDeleteExpireLog">
+        <member name="M:Aix.ScheduleTask.ScheduleTaskService.Dispose">
             <summary>
-            清除过期日志
+            释放资源
             </summary>
-            <returns></returns>
         </member>
-        <member name="M:Aix.ScheduleTask.ScheduleTaskService.ScheduleProcessErrorTaskLoop">
+        <member name="M:Aix.ScheduleTask.ServiceCollectionExtensions.AddScheduleTaskDistributedLock``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            定时处理 执行错误的任务，进行重试
+            添加自己实现的分布式锁
             </summary>
+            <typeparam name="T"></typeparam>
+            <param name="services"></param>
             <returns></returns>
         </member>
         <member name="M:Aix.ScheduleTask.Utils.DateTimeUtils.TimeStampToDateTime(System.Int64)">

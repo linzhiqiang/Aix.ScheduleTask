@@ -1,4 +1,5 @@
 ﻿using Aix.ORM;
+using Aix.ScheduleTask.Executors;
 using Aix.ScheduleTask.Foundation;
 using Aix.ScheduleTask.Foundation.Locked;
 using Aix.ScheduleTask.Repository;
@@ -52,14 +53,23 @@ namespace Aix.ScheduleTask
             {
                 services.AddSingleton<IScheduleTaskDistributedLock, ScheduleTaskDistributedLockDBImpl>();
             }
-          
+
             services.AddSingleton<IScheduleTaskService, ScheduleTaskService>();
-            services.AddSingleton<IScheduleTaskLifetime,ScheduleTaskLifetime>();
+            services.AddSingleton<IScheduleTaskLifetime, ScheduleTaskLifetime>();
+            services.AddSingleton<ScheduleTaskExecutor>();
+            services.AddSingleton<ExpireLogExecutor>();
+            services.AddSingleton<ErrorTaskExecutor>();
 
             services.AddAddMultithreadExecutor(options.ConsumerThreadCount);
             return services;
         }
 
+        /// <summary>
+        /// 添加自己实现的分布式锁
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection AddScheduleTaskDistributedLock<T>(this IServiceCollection services) where T : class, IScheduleTaskDistributedLock
         {
             services.AddSingleton<IScheduleTaskDistributedLock, T>();
@@ -96,6 +106,7 @@ namespace Aix.ScheduleTask
             if (options.PreReadSecond <= 0) throw new Exception("配置options.PreReadSecond 非法");
             if (options.PreReadSecond < 5) options.PreReadSecond = 5;
             if (options.PreReadSecond > 30) options.PreReadSecond = 30;
+            if (options.RetryIntervalMillisecond < 10) options.RetryIntervalMillisecond = 10;
         }
     }
 

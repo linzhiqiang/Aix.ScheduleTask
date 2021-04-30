@@ -1,4 +1,5 @@
-﻿using Aix.ScheduleTask.Foundation;
+﻿using Aix.ScheduleTask.Executors;
+using Aix.ScheduleTask.Foundation;
 using Aix.ScheduleTask.Model;
 using Aix.ScheduleTask.Repository;
 using Aix.ScheduleTask.Utils;
@@ -39,6 +40,9 @@ namespace Aix.ScheduleTask
         private readonly AixScheduleTaskOptions _options;
         private readonly IScheduleTaskLifetime _scheduleTaskLifetime;
         private readonly MyMultithreadTaskExecutor _taskExecutor;
+        private readonly ScheduleTaskExecutor _scheduleTaskExecutor;
+        private readonly ExpireLogExecutor _expireLogExecutor;
+        private readonly ErrorTaskExecutor _errorTaskExecutor;
 
         private ConcurrentDictionary<string, CrontabSchedule> CrontabScheduleCache = new ConcurrentDictionary<string, CrontabSchedule>();
         //private volatile bool _isStart = false;
@@ -47,7 +51,11 @@ namespace Aix.ScheduleTask
         // private CancellationToken StopingToken;
 
         private int PreReadSecond = 10; //提前读取多长数据
-        public event Func<ScheduleTaskContext, Task> OnHandleMessage;
+        public event Func<ScheduleTaskContext, Task> OnHandleMessage
+        {
+            add { _scheduleTaskExecutor.OnHandleMessage += value; }
+            remove { _scheduleTaskExecutor.OnHandleMessage -= value; }
+        }
 
         readonly string ScheduleTaskLock = "AixScheduleTaskLock";
 
@@ -58,21 +66,30 @@ namespace Aix.ScheduleTask
             IAixDistributionLockRepository aixDistributionLockRepository,
             IScheduleTaskDistributedLock scheduleTaskDistributedLock,
             IAixScheduleTaskLogRepository aixScheduleTaskLogRepository,
-            MyMultithreadTaskExecutor taskExecutor
+            MyMultithreadTaskExecutor taskExecutor,
+            ScheduleTaskExecutor scheduleTaskExecutor,
+            ExpireLogExecutor expireLogExecutor,
+            ErrorTaskExecutor errorTaskExecutor
             )
         {
             _logger = logger;
             _options = options;
             _scheduleTaskLifetime = scheduleTaskLifetime;
-            // StopingToken = _scheduleTaskLifetime.ScheduleTaskStopping;
             PreReadSecond = _options.PreReadSecond;
             _aixScheduleTaskRepository = aixScheduleTaskRepository;
             _aixDistributionLockRepository = aixDistributionLockRepository;
             _scheduleTaskDistributedLock = scheduleTaskDistributedLock;
             _aixScheduleTaskLogRepository = aixScheduleTaskLogRepository;
             _taskExecutor = taskExecutor;
+            _scheduleTaskExecutor = scheduleTaskExecutor;
+            _expireLogExecutor = expireLogExecutor;
+            _errorTaskExecutor = errorTaskExecutor;
         }
 
+        /// <summary>
+        /// 开始
+        /// </summary>
+        /// <returns></returns>
         public Task Start()
         {
             if (!_repeatStartChecker.Check()) return Task.CompletedTask;
@@ -80,7 +97,10 @@ namespace Aix.ScheduleTask
             {
                 try
                 {
-                    await InnerStart();
+                    await Init();
+                    await _expireLogExecutor.Start();
+                    await _errorTaskExecutor.Start();
+                    await StartProcessTask();
                 }
                 catch (Exception ex)
                 {
@@ -92,11 +112,8 @@ namespace Aix.ScheduleTask
             return Task.CompletedTask;
         }
 
-        private async Task InnerStart()
+        private async Task StartProcessTask()
         {
-            await Init();
-            await ScheduleDeleteExpireLog();
-            await ScheduleProcessErrorTaskLoop();
             while (!_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested)
             {
                 try
@@ -158,21 +175,21 @@ namespace Aix.ScheduleTask
             {
                 _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
 
-                var Schedule = ParseCron(task);
+                var Schedule = CrontabHelper.ParseCron(_logger,task);
                 if (task.LastExecuteTime == 0) task.LastExecuteTime = now; //任务第一次执行时，从当前时间开始
-                var nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
+                var nextExecuteTimeSpan = CrontabHelper.GetNextDueTime(Schedule, DateTimeUtils.TimeStampToDateTime(task.LastExecuteTime), DateTimeUtils.TimeStampToDateTime(now));
 
                 if (nextExecuteTimeSpan <= TimeSpan.Zero) //时间到了，开始执行任务
                 {
                     if (nextExecuteTimeSpan >= TimeSpan.FromSeconds(0 - PreReadSecond))//排除过期太久的，（服务停了好久，再启动这些就不执行了）
                     {
-                        await HandleMessage(task, TimeSpan.Zero); //建议插入任务队列
+                        await _scheduleTaskExecutor.Trigger(task, TimeSpan.Zero); //
                     }
 
                     now = DateTimeUtils.GetTimeStamp();
                     task.LastExecuteTime = now;
                     //计算下一次执行时间
-                    nextExecuteTimeSpan = GetNextDueTime(Schedule, TimeStampToDateTime(task.LastExecuteTime), TimeStampToDateTime(now));
+                    nextExecuteTimeSpan = CrontabHelper.GetNextDueTime(Schedule, DateTimeUtils.TimeStampToDateTime(task.LastExecuteTime), DateTimeUtils.TimeStampToDateTime(now));
                     task.NextExecuteTime = now + (long)nextExecuteTimeSpan.TotalMilliseconds;
                     task.ModifyTime = DateTime.Now;
                     await _aixScheduleTaskRepository.UpdateAsync(task);
@@ -192,76 +209,11 @@ namespace Aix.ScheduleTask
             return nextExecuteDelays;
         }
 
-        private Task HandleMessage(AixScheduleTaskInfo taskInfo, TimeSpan delay)
-        {
-            if (OnHandleMessage == null) return Task.CompletedTask;
-            //把线程队列引用过来，根据id进入不同的线程队列，保证串行执行
-
-            // _logger.LogDebug($"执行定时任务:{taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
-
-            _taskExecutor.GetSingleThreadTaskExecutor(taskInfo.Id).Schedule(async (state) =>
-            {
-                var innerTaskInfo = (AixScheduleTaskInfo)state;
-                int logId = 0;
-                try
-                {
-                    logId = await SaveLog(innerTaskInfo);
-                    await OnHandleMessage(new ScheduleTaskContext { LogId = logId, TaskId = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
-                    await UpdateTriggerCode(logId, OPStatus.Success, "success");
-                }
-                catch (OperationCanceledException ex)
-                {
-                    _logger.LogError(ex, "Aix.ScheduleTask任务取消");
-                    await UpdateTriggerCode(logId, OPStatus.Fail, ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Aix.ScheduleTask定时任务执行出错 {innerTaskInfo.Id},{innerTaskInfo.TaskName},{innerTaskInfo.TaskContent}");
-                    //这里可以实现重试逻辑
-
-                    await UpdateTriggerCode(logId, OPStatus.Fail, ex.Message);
-                }
-            }, taskInfo, delay);
-
-            return Task.CompletedTask;
-        }
-
-        private async Task<int> SaveLog(AixScheduleTaskInfo taskInfo)
-        {
-            AixScheduleTaskLog log = new AixScheduleTaskLog
-            {
-                ScheduleTaskId = taskInfo.Id,
-                RetryCount = taskInfo.MaxRetryCount,
-                TriggerCode = (int)OPStatus.Init,
-                TriggerMessage = "",
-                TriggerTime = DateTime.Now,
-                ResultCode = (int)OPStatus.Init,
-                ResultMessage = "",// StringUtils.SubString(resultDTO.Message, 500),
-                AlarmStatus = (sbyte)AlarmStatus.Init,
-                CreateTime = DateTime.Now,
-                ModifyTime = DateTime.Now
-            };
-            var newLogId = await _aixScheduleTaskLogRepository.InsertAsync(log);
-            return (int)newLogId;
-        }
-
-        private Task UpdateTriggerCode(int logId, OPStatus triggerCode, string triggerMessage)
-        {
-            _taskExecutor.Execute(async (state) =>
-            {
-                AixScheduleTaskLog log = new AixScheduleTaskLog
-                {
-                    Id = logId,
-                    TriggerCode = (int)triggerCode,
-                    TriggerMessage = StringUtils.SubString(triggerMessage, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
-                    ModifyTime = DateTime.Now
-                };
-                await _aixScheduleTaskLogRepository.UpdateAsync(log);
-            }, null);
-
-            return Task.CompletedTask;
-        }
-
+        /// <summary>
+        ///  保存执行结果
+        /// </summary>
+        /// <param name="resultDTO"></param>
+        /// <returns></returns>
         public Task SaveExecuteResult(ExecuteResultDTO resultDTO)
         {
             _taskExecutor.Execute(async (state) =>
@@ -281,6 +233,9 @@ namespace Aix.ScheduleTask
 
         }
 
+        /// <summary>
+        /// 释放资源
+        /// </summary>
         public void Dispose()
         {
             if (!_repeatStopChecker.Check()) return;
@@ -296,61 +251,6 @@ namespace Aix.ScheduleTask
 
         #region private 
 
-        private CrontabSchedule ParseCron(AixScheduleTaskInfo task)
-        {
-            string cron = task.Cron;
-            CrontabSchedule result = null;
-            try
-            {
-                if (string.IsNullOrEmpty(cron)) throw new Exception($"Aix.ScheduleTask任务{task.Id},{task.TaskName}表达式配置为空");
-                if (CrontabScheduleCache.TryGetValue(cron, out result))
-                {
-                    return result;
-                }
-                var options = new CrontabSchedule.ParseOptions
-                {
-                    IncludingSeconds = cron.Split(' ').Length > 5,
-                };
-                result = CrontabSchedule.Parse(cron, options);
-                CrontabScheduleCache.TryAdd(cron, result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Aix.ScheduleTask定时任务解析出错 {task.Id},{task.TaskName},{task.Cron}");
-            }
-            return result;
-        }
-
-        private DateTime GetNexeTime(CrontabSchedule Schedule, DateTime LastDueTime)
-        {
-            return Schedule.GetNextOccurrence(LastDueTime);
-        }
-
-        private TimeSpan GetNextDueTime(CrontabSchedule Schedule, DateTime LastDueTime, DateTime now)
-        {
-            var nextOccurrence = GetNexeTime(Schedule, LastDueTime);
-            TimeSpan dueTime = nextOccurrence - now;// DateTime.Now;
-
-            //if (dueTime.TotalMilliseconds <= 0)
-            //{
-            //    dueTime = TimeSpan.Zero;
-            //}
-
-            return dueTime;
-        }
-
-
-
-        /// <summary>
-        /// 时间戳转时间
-        /// </summary>
-        /// <param name="timestamp"></param>
-        /// <returns></returns>
-        private static DateTime TimeStampToDateTime(long timestamp)
-        {
-            return DateTimeUtils.TimeStampToDateTime(timestamp);
-        }
-
         private async Task Init()
         {
             try
@@ -365,99 +265,6 @@ namespace Aix.ScheduleTask
             {
                 _logger.LogError(ex, "Aix.ScheduleTask定时任务初始化出错");
             }
-        }
-
-        /// <summary>
-        /// 清除过期日志
-        /// </summary>
-        /// <returns></returns>
-        private Task ScheduleDeleteExpireLog()
-        {
-            Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(30));
-                var logExpireHour = _options.LogExpireHour > 0 ? _options.LogExpireHour : 168;
-                while (true)
-                {
-                    _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
-                    try
-                    {
-                        var expiration = DateTime.Now.AddHours(0 - logExpireHour);
-                        await _aixScheduleTaskLogRepository.Delete(expiration);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "清除过期日志异常");
-                    }
-                    await TaskEx.DelayNoException(TimeSpan.FromHours(2), _scheduleTaskLifetime.ScheduleTaskStopping);
-                }
-            });
-
-            return Task.CompletedTask;
-
-        }
-
-        private void WarnIfDataTooLarge(int count)
-        {
-            if (count >= 2000)
-            {
-                _logger.LogWarning("*******************************************");
-                _logger.LogWarning("定时任务数量太大，需要优化为分页轮询");
-                _logger.LogWarning("*******************************************");
-            }
-        }
-
-        /// <summary>
-        /// 定时处理 执行错误的任务，进行重试
-        /// </summary>
-        /// <returns></returns>
-        private Task ScheduleProcessErrorTaskLoop()
-        {
-            Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(3));
-                while (true)
-                {
-                    _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
-                    try
-                    {
-                        await ScheduleProcessErrorTask();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "处理失败任务异常");
-                    }
-                    await TaskEx.DelayNoException(TimeSpan.FromSeconds(10), _scheduleTaskLifetime.ScheduleTaskStopping);
-                }
-            });
-
-            return Task.CompletedTask;
-        }
-
-        private async Task ScheduleProcessErrorTask()
-        {
-            var logIds = await _aixScheduleTaskLogRepository.QueryFailJobLogIds(1000);
-
-            foreach (var logId in logIds)
-            {
-                int lockRet = await _aixScheduleTaskLogRepository.UpdateAlarmStatus(logId, 0, -1);
-                if (lockRet < 1) continue;//cas锁
-
-                var logInfo = await _aixScheduleTaskLogRepository.GetById(logId);
-                var taskInfo = await _aixScheduleTaskRepository.GetById(logInfo.ScheduleTaskId);
-
-                if (logInfo.RetryCount > 0)
-                {
-                    //10秒后执行
-                    taskInfo.MaxRetryCount = logInfo.RetryCount - 1;
-
-                    var diff = logInfo.CreateTime.AddSeconds(_options.RetryIntervalMillisecond) - DateTime.Now;
-                    await HandleMessage(taskInfo, diff); //建议插入任务队列
-                }
-
-                await _aixScheduleTaskLogRepository.UpdateAlarmStatus(logId, -1, 1);
-            }
-
         }
 
         #endregion

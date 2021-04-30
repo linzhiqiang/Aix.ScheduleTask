@@ -36,8 +36,8 @@ namespace Aix.ScheduleTask.RepositoryImpl
 
         public Task<int> UpdateAlarmStatus(int id, int oldAlarmStatus, int newAlarmStatus)
         {
-            var sql = "UPDATE aix_schedule_task_log SET  alarm_status=@newAlarmStatus WHERE id=@id AND alarm_status=@oldAlarmStatus ";
-            return base.ExcuteAsync(sql, new { id, newAlarmStatus, oldAlarmStatus });
+            var sql = "UPDATE aix_schedule_task_log SET  alarm_status=@newAlarmStatus, modify_time=@now  WHERE id=@id AND alarm_status=@oldAlarmStatus ";
+            return base.ExcuteAsync(sql, new { id, newAlarmStatus, oldAlarmStatus,now=DateTime.Now });
         }
     }
 }
