@@ -1,6 +1,6 @@
 ﻿/*
 该文件为自动生成，不要修改。
-生成时间：2021-04-29 16:02:55。
+生成时间：2021-04-30 13:24:32。
 */
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace Aix.ScheduleTask.Model
         private int _result_code; 
         private string _result_message; 
         private DateTime? _result_time; 
-        private sbyte _alarm_status; 
+        private int _alarm_status; 
         private DateTime _create_time; 
         private DateTime _modify_time; 
 
@@ -113,10 +113,10 @@ namespace Aix.ScheduleTask.Model
             set { _result_time = value; OnPropertyChanged("result_time"); }
         }
         /// <summary>
-        /// 告警状态 告警状态：0-默认、-1-锁定状态、1-无需告警、2-告警成功、9-告警失败  tinyint(1)
+        /// 告警状态 告警状态：0-默认、-1-锁定状态、1-无需告警、2-告警成功、9-告警失败  int(4)
         /// <summary>
         [Column("alarm_status",IsNullable=false,DefaultValue="0")]
-        public sbyte AlarmStatus
+        public int AlarmStatus
         {
             get { return _alarm_status; }
             set { _alarm_status = value; OnPropertyChanged("alarm_status"); }

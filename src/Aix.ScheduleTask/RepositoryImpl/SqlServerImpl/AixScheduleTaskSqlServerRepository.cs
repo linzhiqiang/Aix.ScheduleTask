@@ -15,6 +15,13 @@ namespace Aix.ScheduleTask.RepositoryImpl
 
         }
 
+        public Task<AixScheduleTaskInfo> GetById(int id)
+        {
+            var allColumns = GetAllColumns<AixScheduleTaskInfo>();
+            var sql = $"SELECT {allColumns} FROM aix_schedule_task_info WHERE id=@id ";
+            return GetAsync<AixScheduleTaskInfo>(sql, new { id });
+        }
+
         public  async Task<PagedList<AixScheduleTaskInfo>> PageQuery(PageView pageView)
         {
             var column = GetAllColumns<AixScheduleTaskInfo>();

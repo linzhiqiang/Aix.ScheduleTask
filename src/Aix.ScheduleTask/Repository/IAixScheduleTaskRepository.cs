@@ -11,6 +11,7 @@ namespace Aix.ScheduleTask.Repository
 {
     public  interface  IAixScheduleTaskRepository: ICommonRepository
     {
+        Task<AixScheduleTaskInfo> GetById(int id);
         Task<PagedList<AixScheduleTaskInfo>> PageQuery(PageView pageView);
 
         Task<List<AixScheduleTaskInfo>> QueryAllEnabled(long nextExecuteTime);

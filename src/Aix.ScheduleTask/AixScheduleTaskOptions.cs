@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Aix.ScheduleTask
 {
-  public  class AixScheduleTaskOptions
+    public class AixScheduleTaskOptions
     {
         /// <summary>
         /// 数据库连接字符串
@@ -45,6 +45,11 @@ namespace Aix.ScheduleTask
         /// 任务数据有效期 默认7天=168 单位  小时
         /// </summary>
         public int LogExpireHour { get; set; } = 168;
+
+        /// <summary>
+        /// 错误任务 重试间隔时间 默认10秒
+        /// </summary>
+        public int RetryIntervalMillisecond { get; set; } = 10;
 
     }
 }

@@ -96,6 +96,7 @@ namespace Aix.ScheduleTask
         {
             await Init();
             await ScheduleDeleteExpireLog();
+            await ScheduleProcessErrorTaskLoop();
             while (!_scheduleTaskLifetime.ScheduleTaskStopping.IsCancellationRequested)
             {
                 try
@@ -165,7 +166,7 @@ namespace Aix.ScheduleTask
                 {
                     if (nextExecuteTimeSpan >= TimeSpan.FromSeconds(0 - PreReadSecond))//排除过期太久的，（服务停了好久，再启动这些就不执行了）
                     {
-                        await HandleMessage(task); //建议插入任务队列
+                        await HandleMessage(task, TimeSpan.Zero); //建议插入任务队列
                     }
 
                     now = DateTimeUtils.GetTimeStamp();
@@ -191,14 +192,14 @@ namespace Aix.ScheduleTask
             return nextExecuteDelays;
         }
 
-        private Task HandleMessage(AixScheduleTaskInfo taskInfo)
+        private Task HandleMessage(AixScheduleTaskInfo taskInfo, TimeSpan delay)
         {
             if (OnHandleMessage == null) return Task.CompletedTask;
             //把线程队列引用过来，根据id进入不同的线程队列，保证串行执行
 
             // _logger.LogDebug($"执行定时任务:{taskInfo.Id},{taskInfo.TaskName},{taskInfo.ExecutorParam}");
 
-            _taskExecutor.GetSingleThreadTaskExecutor(taskInfo.Id).Execute(async (state) =>
+            _taskExecutor.GetSingleThreadTaskExecutor(taskInfo.Id).Schedule(async (state) =>
             {
                 var innerTaskInfo = (AixScheduleTaskInfo)state;
                 int logId = 0;
@@ -220,7 +221,7 @@ namespace Aix.ScheduleTask
 
                     await UpdateTriggerCode(logId, OPStatus.Fail, ex.Message);
                 }
-            }, taskInfo);
+            }, taskInfo, delay);
 
             return Task.CompletedTask;
         }
@@ -236,7 +237,7 @@ namespace Aix.ScheduleTask
                 TriggerTime = DateTime.Now,
                 ResultCode = (int)OPStatus.Init,
                 ResultMessage = "",// StringUtils.SubString(resultDTO.Message, 500),
-                AlarmStatus= (sbyte)AlarmStatus.Init,
+                AlarmStatus = (sbyte)AlarmStatus.Init,
                 CreateTime = DateTime.Now,
                 ModifyTime = DateTime.Now
             };
@@ -269,7 +270,7 @@ namespace Aix.ScheduleTask
                 {
                     Id = resultDTO.LogId,
                     ResultCode = resultDTO.Code == 0 ? (int)OPStatus.Success : (int)OPStatus.Fail, //状态 0=初始化 /*1=执行中*/ 2=执行成功 9=执行失败  
-                    ResultMessage = StringUtils.SubString(resultDTO.Code+"-"+resultDTO.Message, _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
+                    ResultMessage = StringUtils.SubString($"{resultDTO.Code},{resultDTO.Message}", _options.LogResultMessageMaxLength > 0 ? _options.LogResultMessageMaxLength : 500),
                     ResultTime = DateTime.Now,
                     ModifyTime = DateTime.Now
                 };
@@ -404,6 +405,59 @@ namespace Aix.ScheduleTask
                 _logger.LogWarning("定时任务数量太大，需要优化为分页轮询");
                 _logger.LogWarning("*******************************************");
             }
+        }
+
+        /// <summary>
+        /// 定时处理 执行错误的任务，进行重试
+        /// </summary>
+        /// <returns></returns>
+        private Task ScheduleProcessErrorTaskLoop()
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3));
+                while (true)
+                {
+                    _scheduleTaskLifetime.ScheduleTaskStopping.ThrowIfCancellationRequested();
+                    try
+                    {
+                        await ScheduleProcessErrorTask();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "处理失败任务异常");
+                    }
+                    await TaskEx.DelayNoException(TimeSpan.FromSeconds(10), _scheduleTaskLifetime.ScheduleTaskStopping);
+                }
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private async Task ScheduleProcessErrorTask()
+        {
+            var logIds = await _aixScheduleTaskLogRepository.QueryFailJobLogIds(1000);
+
+            foreach (var logId in logIds)
+            {
+                int lockRet = await _aixScheduleTaskLogRepository.UpdateAlarmStatus(logId, 0, -1);
+                if (lockRet < 1) continue;//cas锁
+
+                var logInfo = await _aixScheduleTaskLogRepository.GetById(logId);
+                var taskInfo = await _aixScheduleTaskRepository.GetById(logInfo.ScheduleTaskId);
+
+                if (logInfo.RetryCount > 0)
+                {
+                    //10秒后执行
+                    taskInfo.MaxRetryCount = logInfo.RetryCount - 1;
+
+                    var diff = logInfo.CreateTime.AddSeconds(_options.RetryIntervalMillisecond) - DateTime.Now;
+                    await HandleMessage(taskInfo, diff); //建议插入任务队列
+                }
+
+                await _aixScheduleTaskLogRepository.UpdateAlarmStatus(logId, -1, 1);
+            }
+
         }
 
         #endregion

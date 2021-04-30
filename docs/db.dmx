@@ -104,11 +104,11 @@ Top=29.00</GraphDesc>
 
 <DataModels_items1_Tables_items2_MetaFields_items3>
   <ID>2</ID>
-  <Name>status</Name>
+  <Name>task_status</Name>
   <Memo>0=禁用 1=启动</Memo>
   <OrderNo>3</OrderNo>
   <DisplayName>状态</DisplayName>
-  <DataType>6</DataType>
+  <DataType>2</DataType>
   <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items2_MetaFields_items3>
 
@@ -270,6 +270,7 @@ Top=23.00</GraphDesc>
 <DataModels_items1_Tables_items3_MetaFields_items4>
   <ID>55</ID>
   <Name>trigger_code</Name>
+  <Memo>0=初始化  2=执行成功 9=执行失败  </Memo>
   <CreateDate>2021/4/23 10:04:22</CreateDate>
   <OrderNo>4</OrderNo>
   <DisplayName>调度code</DisplayName>
@@ -301,6 +302,7 @@ Top=23.00</GraphDesc>
 <DataModels_items1_Tables_items3_MetaFields_items7>
   <ID>342</ID>
   <Name>result_code</Name>
+  <Memo>0=初始化  2=执行成功 9=执行失败  </Memo>
   <OrderNo>7</OrderNo>
   <DisplayName>结果code</DisplayName>
   <DataType>2</DataType>
@@ -333,7 +335,7 @@ Top=23.00</GraphDesc>
   <CreateDate>2021/4/29 15:44:45</CreateDate>
   <OrderNo>10</OrderNo>
   <DisplayName>告警状态</DisplayName>
-  <DataType>6</DataType>
+  <DataType>2</DataType>
   <DefaultValue>0</DefaultValue>
 </DataModels_items1_Tables_items3_MetaFields_items10>
 

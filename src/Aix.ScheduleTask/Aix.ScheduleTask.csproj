@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>分布式定时任务:数据库实现支持 sqlserver、mysql</Description>
-    <Version>1.0.18</Version>
-    <PackageReleaseNotes>优化</PackageReleaseNotes>
+    <Version>1.0.19</Version>
+    <PackageReleaseNotes>增加错误重试功能</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aix.MultithreadExecutor" Version="1.0.2" />
+    <PackageReference Include="Aix.MultithreadExecutor" Version="1.0.3" />
     <PackageReference Include="Aix.ORM" Version="1.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
