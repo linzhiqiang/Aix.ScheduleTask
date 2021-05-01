@@ -14,6 +14,11 @@ namespace Aix.ScheduleTask
         public int TaskId { get; set; }
 
         /// <summary>
+        /// 任务名称
+        /// </summary>
+        public string TaskName { get; set; }
+
+        /// <summary>
         /// 执行器 根据需要扩展
         /// </summary>
         public string TaskGroup { get; set; }
@@ -27,7 +32,7 @@ namespace Aix.ScheduleTask
     /// <summary>
     /// 执行结果信息
     /// </summary>
-    public class ExecuteResultDTO
+    public class ExecuteResult
     {
         /// <summary>
         /// 定时任务logid
@@ -35,7 +40,7 @@ namespace Aix.ScheduleTask
         public int LogId { get; set; }
 
         /// <summary>
-        /// 状态码  0=初始化  2=执行成功 9=执行失败  
+        /// 状态码  0=执行成功 非0=执行失败  
         /// </summary>
         public int Code { get; set; }
 

@@ -49,9 +49,10 @@ namespace Aix.ScheduleTask.Example.HostServices
             string message = "success";
             try
             {
-                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.LogId}——{arg.TaskContent}");
+                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}执行任务:{arg.TaskName}-{arg.LogId}——{arg.TaskContent}");
                 // await Task.Delay(TimeSpan.FromSeconds(5));
-                throw new Exception("测试重试");
+                if (arg.TaskId==2)
+                    throw new Exception("测试重试");
             }
             //catch(BizException ex)
             //{
@@ -65,7 +66,8 @@ namespace Aix.ScheduleTask.Example.HostServices
             }
             finally
             {
-                await _scheduleTaskService.SaveExecuteResult(new ExecuteResultDTO { LogId = arg.LogId, Code = code, Message = message });
+                //这里必须调用的 当然也可以异步调用的
+                await _scheduleTaskService.SaveExecuteResult(new ExecuteResult { LogId = arg.LogId, Code = code, Message = message });
             }
         }
     }

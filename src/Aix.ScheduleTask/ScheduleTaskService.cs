@@ -214,7 +214,7 @@ namespace Aix.ScheduleTask
         /// </summary>
         /// <param name="resultDTO"></param>
         /// <returns></returns>
-        public Task SaveExecuteResult(ExecuteResultDTO resultDTO)
+        public Task SaveExecuteResult(ExecuteResult resultDTO)
         {
             _taskExecutor.Execute(async (state) =>
             {

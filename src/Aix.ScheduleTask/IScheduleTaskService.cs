@@ -26,6 +26,6 @@ namespace Aix.ScheduleTask
         /// </summary>
         /// <param name="resultDTO"></param>
         /// <returns></returns>
-        Task SaveExecuteResult(ExecuteResultDTO resultDTO);
+        Task SaveExecuteResult(ExecuteResult resultDTO);
     }
 }

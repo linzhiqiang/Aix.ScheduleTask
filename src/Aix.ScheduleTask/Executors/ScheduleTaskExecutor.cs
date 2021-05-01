@@ -13,7 +13,7 @@ namespace Aix.ScheduleTask.Executors
     /// <summary>
     /// 触发任务 进入任务队列等待调度
     /// </summary>
-   public class ScheduleTaskExecutor
+    public class ScheduleTaskExecutor
     {
         ILogger<ScheduleTaskExecutor> _logger;
         private readonly IAixScheduleTaskLogRepository _aixScheduleTaskLogRepository;
@@ -48,7 +48,14 @@ namespace Aix.ScheduleTask.Executors
                 try
                 {
                     logId = await SaveLog(innerTaskInfo);
-                    await OnHandleMessage(new ScheduleTaskContext { LogId = logId, TaskId = innerTaskInfo.Id, TaskGroup = innerTaskInfo.TaskGroup, TaskContent = innerTaskInfo.TaskContent });
+                    await OnHandleMessage(new ScheduleTaskContext
+                    {
+                        LogId = logId,
+                        TaskId = innerTaskInfo.Id,
+                        TaskName = innerTaskInfo.TaskName,
+                        TaskGroup = innerTaskInfo.TaskGroup,
+                        TaskContent = innerTaskInfo.TaskContent
+                    });
                     await UpdateTriggerCode(logId, OPStatus.Success, "success");
                 }
                 catch (OperationCanceledException ex)
